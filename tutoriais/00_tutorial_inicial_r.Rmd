@@ -1,0 +1,418 @@
+---
+title: "Tutorial 0 — Primeiros passos no R: manipulando dados com dplyr"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: false
+---
+
+```{r configuracao, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Apresentação
+
+Um dos aspectos mais interessantes da linguagem R é a possibilidade de ampliar suas funcionalidades com pacotes desenvolvidos pela comunidade de usuárias e usuários. Ao longo do tempo, surgiram diferentes formas de importar, organizar e analisar bases de dados.
+
+Uma das mais utilizadas é a do pacote *dplyr*, parte do *tidyverse*. Seus comandos costumam ser chamados de **verbos**, porque representam operações como selecionar, filtrar, transformar e resumir informações.
+
+Também podemos realizar essas tarefas utilizando as funções que já vêm com o R, frequentemente chamadas de funções do *R base*. Não são linguagens diferentes: são maneiras diferentes de resolver problemas no mesmo ambiente.
+
+Este é nosso **Tutorial 0**, uma atividade de revisão dos conhecimentos que utilizaremos nos próximos tutoriais sobre raspagem de páginas, APIs e construção de coleções de textos. Vamos começar por uma tabela de escolas, antes de buscar informações na internet.
+
+Ao final, você deverá conseguir importar um arquivo CSV, examinar um *data frame* e usar `rename()`, `select()`, `mutate()`, `filter()` e o operador `%>%`. Retomaremos também a criação de objetos, os argumentos das funções e a extração de uma coluna com `pull()`.
+
+# Instalando e carregando pacotes
+
+Quando abrimos o R ou o RStudio, algumas funções já estão disponíveis. Outras precisam ser instaladas por meio de **pacotes**.
+
+**Instalar** e **carregar** são coisas diferentes. Instalamos um pacote uma vez em nosso computador; carregamos o pacote a cada nova sessão em que pretendemos utilizá-lo.
+
+Se você ainda não tem o *tidyverse*, execute **uma vez**, no console do R:
+
+```{r instalar-pacote, eval=FALSE}
+install.packages("tidyverse")
+```
+
+Depois, carregue o pacote:
+
+```{r carregar-pacotes}
+library(tidyverse)
+```
+
+O *tidyverse* é um conjunto de pacotes que inclui, entre outros, o *dplyr* (manipulação de dados), o *readr* (leitura e escrita de arquivos) e o *ggplot2* (visualização de dados). Nesta atividade, nosso foco será a manipulação de tabelas.
+
+**Obs.:** evitamos executar `install.packages()` automaticamente ao gerar o HTML com **Knit**, pois uma instalação depende do computador e da conexão com a internet. Faça-a no console quando necessário.
+
+# Começando pelo meio: data frames
+
+Uma característica importante do R é sua utilização na análise de dados. E, quando pensamos em análise, uma das protagonistas é a **base de dados**, representada frequentemente por um *data frame*.
+
+Em um *data frame*, cada **linha** representa uma observação e cada **coluna** representa uma variável. Por exemplo, imagine esta pequena tabela fictícia:
+
+| Candidato | Partido | Votos |
+|:---|:---|---:|
+| Beatriz | PMDB | 350 |
+| Danilo | SOL | 1598 |
+| Pedro | PTB | 784 |
+| Davi | PSD | 580 |
+| Mateus | PV | 2 |
+
+Cada linha representa uma candidatura. As colunas guardam informações diferentes sobre ela. `Candidato` e `Partido` contêm textos; `Votos`, números.
+
+Em R, os elementos de uma mesma coluna geralmente compartilham um tipo de dado: `character` para textos, `integer` ou `numeric` para números, `logical` para valores `TRUE` e `FALSE`, entre outros. Classificações como **nominal**, **ordinal** e **contínua**, que encontramos nos cursos de estatística, dizem respeito à natureza das variáveis; não são exatamente os tipos de objetos utilizados pelo R.
+
+Se destacarmos a coluna de votos, teremos um **vetor** com os valores `350`, `1598`, `784`, `580` e `2`. Um *data frame* reúne várias colunas dessa maneira.
+
+*Data frames* e vetores são **objetos** do R: informações guardadas na memória e identificadas por nomes. Vamos utilizá-los agora com um exemplo mais próximo da pesquisa com dados públicos.
+
+# Cadastro de escolas
+
+Trabalharemos com informações de estabelecimentos de ensino da cidade de São Paulo. O exemplo foi inspirado no [Cadastro de escolas municipais, conveniadas e privadas](https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas), da Prefeitura de São Paulo.
+
+Como páginas e arquivos públicos podem mudar de endereço, incluímos uma **pequena base fictícia**, chamada `00_escolas_exemplo.csv`, que acompanha este tutorial. Ela reproduz apenas as colunas necessárias aos exercícios. **Seus registros não representam escolas reais e não devem ser utilizados para pesquisa.**
+
+Isso permite aprender os comandos sem depender, nesta atividade inicial, de um arquivo disponível na internet. Mais adiante mostraremos como substituir o exemplo por uma base oficial.
+
+## Abrindo dados no RStudio com um botão
+
+Se você decidiu aprender a programar em R, provavelmente quer substituir operações repetidas com o mouse por scripts que documentam o passo a passo da análise.
+
+Por enquanto, porém, podemos começar com um botão. No RStudio, procure a opção **Import Dataset**. Ela permite escolher um arquivo e visualizar como os dados serão interpretados.
+
+Experimente abrir `00_escolas_exemplo.csv`, que deve ficar na mesma pasta deste tutorial, e observe o separador usado no arquivo e os nomes das colunas.
+
+Mas, aos poucos, vamos abandonar os botões. Abrir dados em R é bastante simples.
+
+## Abrindo dados com um script
+
+O arquivo que vamos utilizar é um **CSV**, um formato de texto utilizado para armazenar tabelas. Nosso exemplo usa **ponto e vírgula** para separar colunas. Por isso utilizaremos `read_csv2()`, do pacote *readr*.
+
+O trecho abaixo procura o arquivo em dois lugares: ao lado do tutorial ou na pasta `tutoriais/` de um projeto aberto no RStudio. Não precisamos conhecer todas essas instruções agora; elas apenas permitem executar o exemplo de mais de uma maneira.
+
+```{r abrir-escolas}
+arquivo_escolas <- "00_escolas_exemplo.csv"
+
+if (!file.exists(arquivo_escolas)) {
+  arquivo_escolas <- "tutoriais/00_escolas_exemplo.csv"
+}
+
+escolas <- read_csv2(arquivo_escolas, show_col_types = FALSE)
+```
+
+A função `read_csv2()` interpreta o arquivo de texto e devolve um *data frame*. O argumento `show_col_types = FALSE` apenas evita mostrar uma mensagem extensa sobre os tipos de colunas identificados.
+
+Em R, o símbolo `<-` é utilizado para **atribuição**: guardamos o resultado que está à direita em um objeto cujo nome aparece à esquerda. No nosso exemplo, criamos o objeto `escolas`.
+
+**Atenção:** `read_csv()` e `read_csv2()` não são sinônimos. A primeira função é indicada, por padrão, para CSV com colunas separadas por **vírgulas**; a segunda, para arquivos com **ponto e vírgula**, frequentes nas exportações brasileiras. O separador e o símbolo decimal precisam ser conferidos no arquivo utilizado.
+
+## E se quisermos usar uma base diretamente da internet?
+
+O R também permite abrir um arquivo CSV utilizando seu **endereço na internet**. Em uma versão anterior desta atividade, o cadastro de escolas era obtido pelo endereço abaixo, referente a dezembro de 2024:
+
+```{r exemplo-url-escolas, eval=FALSE}
+url_escolas <- "https://dados.prefeitura.sp.gov.br/dataset/8da55b0e-b385-4b54-9296-d0000014ddd5/resource/533188c6-1949-4976-ac4e-acd313415cd1/download/escolas122024.csv"
+
+escolas_oficiais <- read_csv2(url_escolas)
+```
+
+Esse trecho não será executado automaticamente. O endereço precisa ser conferido, pois um arquivo pode ser movido ou substituído no portal. Se utilizar uma versão mais recente do cadastro, examine novamente os nomes das colunas antes de reproduzir os comandos deste tutorial.
+
+Também podemos baixar o CSV manualmente e abrir um arquivo local indicando seu caminho em `read_csv2()`.
+
+Guarde a diferença: **uma URL indica onde está o arquivo na internet; um caminho local indica onde está o arquivo no computador**. Voltaremos a trabalhar com URLs a partir do Tutorial 1.
+
+# Conhecendo a base sem olhar todas as linhas
+
+Podemos examinar a tabela inteira no RStudio com `View()`, mas isso não é necessário para conhecer sua estrutura. Se quiser, execute o comando a seguir no console:
+
+```{r visualizar-tabela, eval=FALSE}
+View(escolas)
+```
+
+A função `head()` mostra, por padrão, as seis primeiras linhas:
+
+```{r primeiras-linhas}
+head(escolas)
+```
+
+Quantas escolas há? Basta contar as linhas:
+
+```{r dimensoes}
+nrow(escolas)
+ncol(escolas)
+```
+
+`nrow()` informa quantas linhas existem; `ncol()`, quantas colunas. E, para conhecer os nomes das variáveis:
+
+```{r nomes-colunas}
+names(escolas)
+```
+
+Também podemos examinar a estrutura do objeto:
+
+```{r estrutura-dados}
+class(escolas)
+str(escolas)
+glimpse(escolas)
+```
+
+`class()` informa a classe do objeto. `str()` apresenta sua estrutura e os tipos de variáveis. `glimpse()`, do *dplyr*, traz um resumo semelhante em um formato conveniente para *data frames*.
+
+## Comentários e argumentos das funções
+
+Podemos escrever comentários no código. Basta usar `#`; tudo o que vem depois dele, até o final da linha, é tratado como comentário:
+
+```{r comentarios}
+# Quais são os nomes das colunas?
+names(escolas)
+
+nrow(escolas) # Quantidade de linhas
+```
+
+Comentários são úteis para documentar o que fazemos, especialmente quando compartilhamos o código com outras pessoas ou voltamos a ele meses depois.
+
+Observe também os parênteses das funções. Tudo o que colocamos dentro deles corresponde aos **argumentos** da função. Algumas funções recebem vários argumentos, e alguns possuem valores previamente definidos.
+
+Por exemplo, para mostrar dez linhas em vez das seis que aparecem por padrão, escrevemos:
+
+```{r argumentos-head}
+head(x = escolas, n = 10)
+```
+
+`x` indica o objeto e `n` indica quantas linhas queremos ver. Podemos consultar a ajuda de uma função com `?head`, diretamente no console.
+
+# Renomeando variáveis
+
+Quando utilizamos dados que não produzimos, frequentemente encontramos nomes de variáveis pouco confortáveis para escrever códigos. Podemos preferir nomes curtos, sem espaços, em letras minúsculas e com `_` para separar palavras.
+
+Veja os nomes originais de nosso exemplo:
+
+```{r conferir-nomes-originais}
+names(escolas)
+```
+
+Vamos começar renomeando três colunas:
+
+```{r primeiro-rename}
+escolas <- rename(escolas, tipo = TIPOESC, lat = LATITUDE, lon = LONGITUDE)
+
+names(escolas)
+```
+
+A função `rename()` usa a ordem **nome_novo = nome_antigo**. O comando modifica os nomes no objeto `escolas` porque guardamos o resultado novamente nele, com `<-`.
+
+## Uma gramática, duas formas
+
+No *tidyverse*, podemos escrever a mesma operação com o operador `%>%`, chamado *pipe*. Antes, porém, vamos reabrir os dados, pois as colunas `TIPOESC`, `LATITUDE` e `LONGITUDE` já foram renomeadas:
+
+```{r reabrir-escolas}
+escolas <- read_csv2(arquivo_escolas, show_col_types = FALSE)
+```
+
+Agora faremos uma renomeação mais completa:
+
+```{r renomear-colunas}
+escolas <- escolas %>%
+  rename(
+    dre_abreviatura = DRE,
+    codigo = CODESC,
+    tipo = TIPOESC,
+    nome = NOMES,
+    dre = DIRETORIA,
+    lat = LATITUDE,
+    lon = LONGITUDE,
+    codigo_inep = CODINEP
+  )
+
+names(escolas)
+```
+
+Podemos ler: **pegue o objeto `escolas` e aplique a ele a função `rename()`**. O `%>%` passa o resultado de uma etapa para a seguinte.
+
+Compare com `rename(escolas, ...)`, que escrevemos anteriormente. O resultado é o mesmo, mas o *pipe* permite colocar várias operações em sequência. Utilizaremos essa forma nos próximos tutoriais.
+
+**Obs.:** o R também tem o operador nativo `|>`. Nesta oficina, manteremos `%>%`, como nos outros exemplos do curso.
+
+# Selecionando colunas com `select()`
+
+Nem sempre precisamos de todas as variáveis presentes na base. Podemos selecionar somente as que nos interessam:
+
+```{r selecionar-colunas}
+escolas <- escolas %>%
+  select(dre_abreviatura, codigo, tipo, nome, dre, lat, lon, codigo_inep)
+
+head(escolas)
+```
+
+Observe que `select()` escolhe **colunas**, não linhas.
+
+## Encadeando operações com `%>%`
+
+Uma das vantagens do *pipe* é poder ler o código como uma sequência de tarefas. Podemos fazer tudo, desde a abertura do arquivo, em um único encadeamento:
+
+```{r exemplo-encadeamento}
+escolas <- arquivo_escolas %>%
+  read_csv2(show_col_types = FALSE) %>%
+  rename(
+    dre_abreviatura = DRE,
+    codigo = CODESC,
+    tipo = TIPOESC,
+    nome = NOMES,
+    dre = DIRETORIA,
+    lat = LATITUDE,
+    lon = LONGITUDE,
+    codigo_inep = CODINEP
+  ) %>%
+  select(dre_abreviatura, codigo, tipo, nome, dre, lat, lon, codigo_inep)
+```
+
+Começamos pelo caminho do arquivo, que é um texto. `read_csv2()` transforma esse texto em um *data frame*. Em seguida, `rename()` altera os nomes de algumas colunas e `select()` escolhe quais devem permanecer.
+
+**Exercício:** use `select()` para criar um novo objeto contendo apenas o nome, o tipo e a Diretoria Regional de Educação de cada escola. Confira seus nomes com `names()`.
+
+# Transformando variáveis com `mutate()`
+
+Usamos `mutate()` para modificar uma variável existente ou criar outra nova. Uma transformação pode envolver uma operação matemática, uma comparação ou uma expressão que produza textos.
+
+No **arquivo fictício que acompanha esta aula**, as coordenadas geográficas foram guardadas como números multiplicados por um milhão. Por exemplo, uma latitude que deveria ser `-23.55` aparece aproximadamente como `-23550000`.
+
+Vamos dividir as duas variáveis por `1000000`:
+
+```{r ajustar-coordenadas}
+escolas <- escolas %>%
+  mutate(
+    lat = lat / 1000000,
+    lon = lon / 1000000
+  )
+
+head(escolas)
+```
+
+Como utilizamos os mesmos nomes à esquerda da operação, as colunas `lat` e `lon` são substituídas por seus novos valores.
+
+**Atenção:** esta transformação corresponde ao formato da nossa **base didática**. Não divida automaticamente as coordenadas de outros arquivos: primeiro examine como elas estão representadas. Se já estiverem em graus decimais, essa operação seria incorreta.
+
+Também podemos criar uma variável sem substituir as anteriores:
+
+```{r criar-nova-variavel}
+escolas <- escolas %>%
+  mutate(rede_infantil = tipo == "EMEI")
+
+head(escolas)
+```
+
+A nova coluna contém `TRUE` quando a condição é satisfeita e `FALSE` quando não é. Ela nos ajudará a compreender os filtros.
+
+# Filtrando linhas com `filter()`
+
+Às vezes, queremos trabalhar somente com parte das observações. Por exemplo, podemos selecionar as Escolas Municipais de Educação Infantil (EMEI):
+
+```{r filtrar-emeis}
+emeis <- escolas %>%
+  filter(tipo == "EMEI")
+
+nrow(emeis)
+head(emeis)
+```
+
+`filter()` seleciona **linhas** que satisfazem uma condição. O símbolo `==` significa igualdade; `!=` significa diferença; `>`, `<`, `>=` e `<=` permitem outras comparações. Para verificar valores ausentes (`NA`), usamos `is.na()`, não `== NA`.
+
+## Combinando condições: OU e E
+
+Vamos selecionar três tipos de centro de educação infantil:
+
+```{r filtrar-creches}
+creches <- escolas %>%
+  filter(tipo == "CEI DIRET" |
+         tipo == "CEI INDIR" |
+         tipo == "CR.P.CONV")
+
+nrow(creches)
+```
+
+A barra vertical `|` significa **OU**: basta que uma das condições seja verdadeira.
+
+Agora, queremos essas mesmas categorias, mas **somente na Diretoria Regional de Educação do Ipiranga**. Precisamos utilizar **E**, representado por `&`:
+
+```{r filtrar-creches-ipiranga}
+creches_ipiranga <- escolas %>%
+  filter(
+    (tipo == "CEI DIRET" |
+     tipo == "CEI INDIR" |
+     tipo == "CR.P.CONV") &
+    dre == "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA"
+  )
+
+nrow(creches_ipiranga)
+```
+
+**Preste atenção aos parênteses.** Sem eles, a condição sobre a Diretoria Regional poderia ser aplicada apenas à última alternativa, e não às três categorias de escolas.
+
+Podemos escrever a mesma seleção utilizando uma vírgula entre as condições do `filter()`. Dentro de `filter()`, a vírgula funciona como **E**:
+
+```{r filtrar-com-virgula}
+creches_ipiranga <- escolas %>%
+  filter(
+    tipo == "CEI DIRET" |
+      tipo == "CEI INDIR" |
+      tipo == "CR.P.CONV",
+    dre == "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA"
+  )
+```
+
+As duas versões devem selecionar as mesmas escolas:
+
+```{r conferir-filtro}
+nrow(creches_ipiranga)
+head(creches_ipiranga)
+```
+
+# Contando e extraindo informações
+
+Além de selecionar e modificar dados, podemos responder rapidamente a algumas perguntas sobre a tabela.
+
+## Quantas escolas existem de cada tipo?
+
+O verbo `count()` conta as observações de cada categoria:
+
+```{r contar-tipos}
+escolas %>%
+  count(tipo, sort = TRUE)
+```
+
+`sort = TRUE` apresenta os tipos mais frequentes primeiro. É uma forma rápida de conhecer a distribuição de uma variável categórica.
+
+## E se quisermos apenas os nomes das escolas?
+
+Nos primeiros tutoriais de raspagem precisaremos transformar colunas de *data frames* em vetores. A função `pull()`, do *dplyr*, faz exatamente isso:
+
+```{r extrair-vetor}
+nomes_escolas <- escolas %>%
+  pull(nome)
+
+class(nomes_escolas)
+head(nomes_escolas)
+```
+
+O resultado já não é um *data frame*, mas um vetor de textos. No Tutorial 3 faremos uma operação semelhante para reunir endereços de páginas da Wikipedia.
+
+# Para praticar
+
+**Primeiro exercício:** crie um objeto com apenas as escolas do tipo `EMEI` e apresente suas colunas `nome` e `dre`.
+
+**Segundo exercício:** utilize `count()` para descobrir quantas escolas há em cada Diretoria Regional de Educação da base didática.
+
+**Terceiro exercício:** crie uma coluna chamada `nome_curto` contendo exatamente o mesmo texto da coluna `nome`. Qual é a diferença entre criar essa coluna com `mutate()` e renomear `nome` com `rename()`?
+
+**Quarto exercício:** refaça o filtro de creches do Ipiranga e retire os parênteses do primeiro exemplo. Compare as quantidades encontradas e explique o que mudou. Essa comparação é apenas um exercício: **a versão correta é aquela em que as três categorias são combinadas antes da condição sobre a DRE**.
+
+## Usando uma base real
+
+Depois de concluir a atividade com os dados fictícios, volte ao [Portal de Dados Abertos da Prefeitura de São Paulo](https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas). A Secretaria Municipal de Educação também mantém uma [página de dados gerenciais sobre unidades educacionais](https://sites.google.com/edu.sme.prefeitura.sp.gov.br/smecoticdie-dadosgerenciais/unidades-educacionais). São fontes que podem apresentar arquivos e estruturas diferentes. Se conseguir baixar um cadastro oficial, examine seu dicionário de dados e descubra se os nomes e os formatos das variáveis continuam iguais aos deste exercício.
+
+O desafio agora é **adaptar** o código à base encontrada, em vez de presumir que toda versão do cadastro terá a mesma estrutura.
+
+Nos próximos tutoriais, aprenderemos a buscar dados diretamente em páginas HTML, extrair endereços de links, repetir coletas e consultar APIs. As operações que praticamos com `dplyr` continuarão aparecendo durante todo o curso.
