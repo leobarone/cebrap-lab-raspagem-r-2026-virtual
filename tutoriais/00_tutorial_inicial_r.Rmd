@@ -20,7 +20,7 @@ Uma das mais utilizadas é a do pacote *dplyr*, parte do *tidyverse*. Seus coman
 
 Também podemos realizar essas tarefas utilizando as funções que já vêm com o R, frequentemente chamadas de funções do *R base*. Não são linguagens diferentes: são maneiras diferentes de resolver problemas no mesmo ambiente.
 
-Este é nosso **Tutorial 0**, uma atividade de revisão dos conhecimentos que utilizaremos nos próximos tutoriais sobre raspagem de páginas, APIs e construção de coleções de textos. Vamos começar por uma tabela de escolas, antes de buscar informações na internet.
+Este é nosso **Tutorial 0**, uma atividade de revisão dos conhecimentos que utilizaremos nos próximos tutoriais sobre raspagem de páginas, APIs e construção de coleções de textos. Vamos começar por um cadastro real de escolas, disponível na internet, e utilizá-lo para praticar a manipulação de dados.
 
 Ao final, você deverá conseguir importar um arquivo CSV, examinar um *data frame* e usar `rename()`, `select()`, `mutate()`, `filter()` e o operador `%>%`. Retomaremos também a criação de objetos, os argumentos das funções e a extração de uma coluna com `pull()`.
 
@@ -54,8 +54,8 @@ Em um *data frame*, cada **linha** representa uma observação e cada **coluna**
 
 | Candidato | Partido | Votos |
 |:---|:---|---:|
-| Beatriz | PMDB | 350 |
-| Danilo | SOL | 1598 |
+| Beatriz | MDB | 350 |
+| Danilo | PSOL | 1598 |
 | Pedro | PTB | 784 |
 | Davi | PSD | 580 |
 | Mateus | PV | 2 |
@@ -70,59 +70,62 @@ Se destacarmos a coluna de votos, teremos um **vetor** com os valores `350`, `15
 
 # Cadastro de escolas
 
-Trabalharemos com informações de estabelecimentos de ensino da cidade de São Paulo. O exemplo foi inspirado no [Cadastro de escolas municipais, conveniadas e privadas](https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas), da Prefeitura de São Paulo.
+Trabalharemos com o **Cadastro de escolas municipais, conveniadas e privadas**, publicado pela Prefeitura de São Paulo no [Portal de Dados Abertos](https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas).
 
-Como páginas e arquivos públicos podem mudar de endereço, incluímos uma **pequena base fictícia**, chamada `00_escolas_exemplo.csv`, que acompanha este tutorial. Ela reproduz apenas as colunas necessárias aos exercícios. **Seus registros não representam escolas reais e não devem ser utilizados para pesquisa.**
+Nosso arquivo é uma edição do cadastro identificada como `escolas122024.csv`, referente a dezembro de 2024. Ele contém informações sobre as unidades escolares, como nome, tipo de escola, códigos de identificação e Diretoria Regional de Educação.
 
-Isso permite aprender os comandos sem depender, nesta atividade inicial, de um arquivo disponível na internet. Mais adiante mostraremos como substituir o exemplo por uma base oficial.
+Antes de executar o código, visite a página do conjunto de dados e procure o arquivo e seu dicionário de variáveis. Em uma pesquisa, conhecer a origem dos dados e o significado das colunas é parte do trabalho.
 
-## Abrindo dados no RStudio com um botão
+## Abrindo dados diretamente da internet
 
-Se você decidiu aprender a programar em R, provavelmente quer substituir operações repetidas com o mouse por scripts que documentam o passo a passo da análise.
+Um arquivo CSV é um documento de texto que armazena informações em formato de tabela. Podemos abri-lo com uma função do R sem precisar baixá-lo manualmente para uma pasta.
 
-Por enquanto, porém, podemos começar com um botão. No RStudio, procure a opção **Import Dataset**. Ela permite escolher um arquivo e visualizar como os dados serão interpretados.
-
-Experimente abrir `00_escolas_exemplo.csv`, que deve ficar na mesma pasta deste tutorial, e observe o separador usado no arquivo e os nomes das colunas.
-
-Mas, aos poucos, vamos abandonar os botões. Abrir dados em R é bastante simples.
-
-## Abrindo dados com um script
-
-O arquivo que vamos utilizar é um **CSV**, um formato de texto utilizado para armazenar tabelas. Nosso exemplo usa **ponto e vírgula** para separar colunas. Por isso utilizaremos `read_csv2()`, do pacote *readr*.
-
-O trecho abaixo procura o arquivo em dois lugares: ao lado do tutorial ou na pasta `tutoriais/` de um projeto aberto no RStudio. Não precisamos conhecer todas essas instruções agora; elas apenas permitem executar o exemplo de mais de uma maneira.
+Vamos guardar o endereço do arquivo em um objeto de texto e depois utilizá-lo para ler os dados:
 
 ```{r abrir-escolas}
-arquivo_escolas <- "00_escolas_exemplo.csv"
-
-if (!file.exists(arquivo_escolas)) {
-  arquivo_escolas <- "tutoriais/00_escolas_exemplo.csv"
-}
-
-escolas <- read_csv2(arquivo_escolas, show_col_types = FALSE)
-```
-
-A função `read_csv2()` interpreta o arquivo de texto e devolve um *data frame*. O argumento `show_col_types = FALSE` apenas evita mostrar uma mensagem extensa sobre os tipos de colunas identificados.
-
-Em R, o símbolo `<-` é utilizado para **atribuição**: guardamos o resultado que está à direita em um objeto cujo nome aparece à esquerda. No nosso exemplo, criamos o objeto `escolas`.
-
-**Atenção:** `read_csv()` e `read_csv2()` não são sinônimos. A primeira função é indicada, por padrão, para CSV com colunas separadas por **vírgulas**; a segunda, para arquivos com **ponto e vírgula**, frequentes nas exportações brasileiras. O separador e o símbolo decimal precisam ser conferidos no arquivo utilizado.
-
-## E se quisermos usar uma base diretamente da internet?
-
-O R também permite abrir um arquivo CSV utilizando seu **endereço na internet**. Em uma versão anterior desta atividade, o cadastro de escolas era obtido pelo endereço abaixo, referente a dezembro de 2024:
-
-```{r exemplo-url-escolas, eval=FALSE}
 url_escolas <- "https://dados.prefeitura.sp.gov.br/dataset/8da55b0e-b385-4b54-9296-d0000014ddd5/resource/533188c6-1949-4976-ac4e-acd313415cd1/download/escolas122024.csv"
 
-escolas_oficiais <- read_csv2(url_escolas)
+escolas <- read_csv2(url_escolas, show_col_types = FALSE)
 ```
 
-Esse trecho não será executado automaticamente. O endereço precisa ser conferido, pois um arquivo pode ser movido ou substituído no portal. Se utilizar uma versão mais recente do cadastro, examine novamente os nomes das colunas antes de reproduzir os comandos deste tutorial.
+A função `read_csv2()`, do pacote *readr*, lê arquivos em que as colunas são separadas, por padrão, por **ponto e vírgula**. A função `read_csv()` espera, por padrão, colunas separadas por **vírgulas**. O argumento `show_col_types = FALSE` apenas esconde a mensagem que descreve os tipos de colunas reconhecidos.
 
-Também podemos baixar o CSV manualmente e abrir um arquivo local indicando seu caminho em `read_csv2()`.
+Em R, o símbolo `<-` serve para **atribuição**: o resultado à direita é guardado em um objeto cujo nome aparece à esquerda. Criamos, assim, o objeto `escolas`, que agora contém os dados do cadastro.
 
-Guarde a diferença: **uma URL indica onde está o arquivo na internet; um caminho local indica onde está o arquivo no computador**. Voltaremos a trabalhar com URLs a partir do Tutorial 1.
+Veja que `url_escolas` contém um endereço na internet, não o caminho de um arquivo no computador. Retomaremos essa distinção nos tutoriais de raspagem.
+
+**Obs.:** estamos usando um endereço de um arquivo público. Se ele estiver temporariamente indisponível ou for alterado pela Prefeitura, será necessário consultar a página do conjunto de dados antes de continuar. O código desta atividade depende do acesso a esse arquivo real; não utilizaremos um conjunto de dados substituto.
+
+## Conferindo os nomes das colunas
+
+Arquivos publicados em momentos diferentes podem apresentar pequenas mudanças nos nomes das variáveis. Vamos conferir o cabeçalho:
+
+```{r conferir-cabecalho-original}
+names(escolas)
+```
+
+Para que os exemplos usem a mesma grafia, colocaremos os nomes das colunas em maiúsculas. Algumas edições do cadastro utilizam `NOMESC` para o nome da escola, e outras podem utilizar `NOMES`. Faremos essa pequena padronização, caso seja necessária:
+
+```{r padronizar-cabecalho}
+names(escolas) <- toupper(names(escolas))
+
+if ("NOMESC" %in% names(escolas)) {
+  escolas <- escolas %>%
+    rename(NOMES = NOMESC)
+}
+
+names(escolas)
+```
+
+O `if` apenas verifica se a coluna `NOMESC` existe e, nesse caso, muda seu nome para `NOMES`. Ele não altera os registros das escolas. Não precisamos estudar agora os detalhes dessa condição: utilizaremos os demais comandos de manipulação com os nomes assim definidos.
+
+Vamos também guardar a versão original da tabela em outro objeto, para podermos retomar as variáveis antes das transformações, **sem fazer outra solicitação ao servidor**:
+
+```{r guardar-base-original}
+escolas_originais <- escolas
+```
+
+Os dois objetos estão na memória do R. Não estamos criando uma cópia do CSV no computador.
 
 # Conhecendo a base sem olhar todas as linhas
 
@@ -188,7 +191,7 @@ head(x = escolas, n = 10)
 
 Quando utilizamos dados que não produzimos, frequentemente encontramos nomes de variáveis pouco confortáveis para escrever códigos. Podemos preferir nomes curtos, sem espaços, em letras minúsculas e com `_` para separar palavras.
 
-Veja os nomes originais de nosso exemplo:
+Veja os nomes das variáveis do cadastro:
 
 ```{r conferir-nomes-originais}
 names(escolas)
@@ -206,10 +209,10 @@ A função `rename()` usa a ordem **nome_novo = nome_antigo**. O comando modific
 
 ## Uma gramática, duas formas
 
-No *tidyverse*, podemos escrever a mesma operação com o operador `%>%`, chamado *pipe*. Antes, porém, vamos reabrir os dados, pois as colunas `TIPOESC`, `LATITUDE` e `LONGITUDE` já foram renomeadas:
+No *tidyverse*, podemos escrever a mesma operação com o operador `%>%`, chamado *pipe*. Antes, porém, vamos recuperar a versão inicial dos dados, pois as colunas `TIPOESC`, `LATITUDE` e `LONGITUDE` já foram renomeadas:
 
 ```{r reabrir-escolas}
-escolas <- read_csv2(arquivo_escolas, show_col_types = FALSE)
+escolas <- escolas_originais
 ```
 
 Agora faremos uma renomeação mais completa:
@@ -251,11 +254,10 @@ Observe que `select()` escolhe **colunas**, não linhas.
 
 ## Encadeando operações com `%>%`
 
-Uma das vantagens do *pipe* é poder ler o código como uma sequência de tarefas. Podemos fazer tudo, desde a abertura do arquivo, em um único encadeamento:
+Uma das vantagens do *pipe* é poder ler o código como uma sequência de tarefas. Vamos refazer a renomeação e a seleção diretamente a partir do objeto com os dados originais:
 
 ```{r exemplo-encadeamento}
-escolas <- arquivo_escolas %>%
-  read_csv2(show_col_types = FALSE) %>%
+escolas <- escolas_originais %>%
   rename(
     dre_abreviatura = DRE,
     codigo = CODESC,
@@ -269,7 +271,7 @@ escolas <- arquivo_escolas %>%
   select(dre_abreviatura, codigo, tipo, nome, dre, lat, lon, codigo_inep)
 ```
 
-Começamos pelo caminho do arquivo, que é um texto. `read_csv2()` transforma esse texto em um *data frame*. Em seguida, `rename()` altera os nomes de algumas colunas e `select()` escolhe quais devem permanecer.
+Começamos pelo *data frame* que recuperamos da internet. Em seguida, `rename()` altera os nomes de algumas colunas e `select()` escolhe quais devem permanecer. A primeira leitura, feita com `read_csv2(url_escolas)`, continua documentada no início da atividade.
 
 **Exercício:** use `select()` para criar um novo objeto contendo apenas o nome, o tipo e a Diretoria Regional de Educação de cada escola. Confira seus nomes com `names()`.
 
@@ -277,34 +279,29 @@ Começamos pelo caminho do arquivo, que é um texto. `read_csv2()` transforma es
 
 Usamos `mutate()` para modificar uma variável existente ou criar outra nova. Uma transformação pode envolver uma operação matemática, uma comparação ou uma expressão que produza textos.
 
-No **arquivo fictício que acompanha esta aula**, as coordenadas geográficas foram guardadas como números multiplicados por um milhão. Por exemplo, uma latitude que deveria ser `-23.55` aparece aproximadamente como `-23550000`.
+Por exemplo, podemos criar uma coluna que informa a quantidade de caracteres dos nomes das escolas. A função `nchar()` faz essa contagem:
 
-Vamos dividir as duas variáveis por `1000000`:
-
-```{r ajustar-coordenadas}
+```{r criar-numero-caracteres}
 escolas <- escolas %>%
-  mutate(
-    lat = lat / 1000000,
-    lon = lon / 1000000
-  )
+  mutate(n_caracteres_nome = nchar(nome))
 
 head(escolas)
 ```
 
-Como utilizamos os mesmos nomes à esquerda da operação, as colunas `lat` e `lon` são substituídas por seus novos valores.
+Acrescentamos uma coluna ao cadastro sem modificar o conteúdo das anteriores. Como não atribuímos o resultado diretamente à coluna `nome`, ela continua disponível com os nomes das escolas.
 
-**Atenção:** esta transformação corresponde ao formato da nossa **base didática**. Não divida automaticamente as coordenadas de outros arquivos: primeiro examine como elas estão representadas. Se já estiverem em graus decimais, essa operação seria incorreta.
-
-Também podemos criar uma variável sem substituir as anteriores:
+Também podemos criar uma variável que indica se uma escola é do tipo EMEI, usando uma comparação:
 
 ```{r criar-nova-variavel}
 escolas <- escolas %>%
-  mutate(rede_infantil = tipo == "EMEI")
+  mutate(eh_emei = tipo == "EMEI")
 
 head(escolas)
 ```
 
 A nova coluna contém `TRUE` quando a condição é satisfeita e `FALSE` quando não é. Ela nos ajudará a compreender os filtros.
+
+**Exercício:** use `mutate()` para criar uma coluna chamada `nome_com_tipo`, reunindo `tipo` e `nome` com a função `paste(tipo, nome)`.
 
 # Filtrando linhas com `filter()`
 
@@ -343,13 +340,13 @@ creches_ipiranga <- escolas %>%
     (tipo == "CEI DIRET" |
      tipo == "CEI INDIR" |
      tipo == "CR.P.CONV") &
-    dre == "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA"
+    str_detect(dre, "IPIRANGA")
   )
 
 nrow(creches_ipiranga)
 ```
 
-**Preste atenção aos parênteses.** Sem eles, a condição sobre a Diretoria Regional poderia ser aplicada apenas à última alternativa, e não às três categorias de escolas.
+**Preste atenção aos parênteses.** Sem eles, a condição sobre a Diretoria Regional poderia ser aplicada apenas à última alternativa, e não às três categorias de escolas. A função `str_detect()`, do *stringr*, identifica os registros cujo nome da Diretoria contém o texto `IPIRANGA`.
 
 Podemos escrever a mesma seleção utilizando uma vírgula entre as condições do `filter()`. Dentro de `filter()`, a vírgula funciona como **E**:
 
@@ -359,7 +356,7 @@ creches_ipiranga <- escolas %>%
     tipo == "CEI DIRET" |
       tipo == "CEI INDIR" |
       tipo == "CR.P.CONV",
-    dre == "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA"
+    str_detect(dre, "IPIRANGA")
   )
 ```
 
@@ -403,16 +400,14 @@ O resultado já não é um *data frame*, mas um vetor de textos. No Tutorial 3 f
 
 **Primeiro exercício:** crie um objeto com apenas as escolas do tipo `EMEI` e apresente suas colunas `nome` e `dre`.
 
-**Segundo exercício:** utilize `count()` para descobrir quantas escolas há em cada Diretoria Regional de Educação da base didática.
+**Segundo exercício:** utilize `count()` para descobrir quantas escolas há em cada Diretoria Regional de Educação do cadastro.
 
 **Terceiro exercício:** crie uma coluna chamada `nome_curto` contendo exatamente o mesmo texto da coluna `nome`. Qual é a diferença entre criar essa coluna com `mutate()` e renomear `nome` com `rename()`?
 
 **Quarto exercício:** refaça o filtro de creches do Ipiranga e retire os parênteses do primeiro exemplo. Compare as quantidades encontradas e explique o que mudou. Essa comparação é apenas um exercício: **a versão correta é aquela em que as três categorias são combinadas antes da condição sobre a DRE**.
 
-## Usando uma base real
+## Retomando a origem dos dados
 
-Depois de concluir a atividade com os dados fictícios, volte ao [Portal de Dados Abertos da Prefeitura de São Paulo](https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas). A Secretaria Municipal de Educação também mantém uma [página de dados gerenciais sobre unidades educacionais](https://sites.google.com/edu.sme.prefeitura.sp.gov.br/smecoticdie-dadosgerenciais/unidades-educacionais). São fontes que podem apresentar arquivos e estruturas diferentes. Se conseguir baixar um cadastro oficial, examine seu dicionário de dados e descubra se os nomes e os formatos das variáveis continuam iguais aos deste exercício.
+Todo o exercício foi realizado com o cadastro real obtido diretamente da Prefeitura de São Paulo. Volte ao [portal de origem](https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas) e examine o dicionário de dados. Quais variáveis adicionais poderiam ser úteis para uma pesquisa sobre educação municipal?
 
-O desafio agora é **adaptar** o código à base encontrada, em vez de presumir que toda versão do cadastro terá a mesma estrutura.
-
-Nos próximos tutoriais, aprenderemos a buscar dados diretamente em páginas HTML, extrair endereços de links, repetir coletas e consultar APIs. As operações que praticamos com `dplyr` continuarão aparecendo durante todo o curso.
+Nos próximos tutoriais, aprenderemos a buscar informações em páginas HTML, extrair endereços de links, repetir coletas e consultar APIs. As operações que praticamos com *dplyr* continuarão aparecendo durante todo o curso.

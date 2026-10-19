@@ -404,11 +404,10 @@ obtidas e organizadas para a análise.</p>
 <p>O curso foi pensado para pessoas que já tiveram uma primeira
 introdução ao <strong>R e ao RStudio</strong>. Vamos presumir
 familiaridade com a criação de objetos, vetores e <em>data frames</em>.
-Para retomar esses conhecimentos antes das atividades de coleta,
-acrescentamos um <strong>Tutorial 0</strong>, com exercícios
-introdutórios de manipulação de dados no <em>dplyr</em>. Ele pode ser
-realizado como preparação para a oficina ou utilizado para consulta ao
-longo dos encontros.</p>
+Para retomar esses conhecimentos antes das atividades de coleta, faça o
+<strong>Tutorial 0</strong>, com exercícios introdutórios de manipulação
+de dados no <em>dplyr</em>. Ele pode ser realizado como preparação para
+a oficina ou utilizado para consulta ao longo dos encontros.</p>
 <p><strong>Não é necessário conhecer previamente HTML, XML, JSON, XPath,
 raspagem de dados, formulários HTML ou APIs.</strong> Esses conceitos
 serão apresentados durante as atividades.</p>
@@ -417,10 +416,6 @@ serão apresentados durante as atividades.</p>
 <h2>Objetivos de aprendizagem</h2>
 <p>Ao final da oficina, esperamos que você consiga:</p>
 <ul>
-<li>Importar arquivos CSV, reconhecer a estrutura de um <em>data
-frame</em> e manipular dados com <code>rename()</code>,
-<code>select()</code>, <code>mutate()</code>, <code>filter()</code>,
-<code>count()</code> e <code>pull()</code>.</li>
 <li>Capturar informações de uma página da internet e transformá-las em
 <em>data frames</em> no R.</li>
 <li>Reconhecer elementos, atributos e a estrutura hierárquica de
@@ -433,10 +428,6 @@ seus resultados.</li>
 uma API de dados abertos.</li>
 <li>Identificar, preencher e enviar formulários HTML utilizando as
 funções atuais do pacote <em>rvest</em>.</li>
-<li>Pesquisar teses e dissertações na BDTD e reunir seus metadados
-bibliográficos e resumos em um <em>corpus</em>.</li>
-<li>Consultar os detalhes de proposições legislativas e recuperar os
-endereços de seus documentos de inteiro teor.</li>
 <li>Baixar arquivos PDF, extrair seus textos e construir um
 <em>corpus</em> organizado em um <em>data frame</em>, associado aos
 metadados das proposições.</li>
@@ -458,10 +449,9 @@ experimentar no RStudio.</p>
 Manipulando dados com dplyr</a></strong></p>
 <p>Antes de começar a coleta de informações pela internet, retomaremos
 os comandos básicos que serão utilizados em todo o curso. O exemplo
-trabalha com uma <strong>pequena base fictícia de escolas</strong>,
-inspirada na estrutura do cadastro municipal de São Paulo, para que seja
-possível executar os exercícios mesmo sem acessar um arquivo
-externo.</p>
+utiliza o <strong>Cadastro de escolas municipais, conveniadas e privadas
+da Prefeitura de São Paulo</strong>, consultado diretamente por sua URL
+oficial, para praticar a manipulação de dados públicos reais.</p>
 <p><strong>O que vamos aprender:</strong> instalar e carregar pacotes;
 importar arquivos CSV com <code>read_csv2()</code>; distinguir objetos,
 vetores, colunas e linhas; explorar <em>data frames</em> com
@@ -470,11 +460,11 @@ renomear, selecionar, transformar e filtrar variáveis com
 <code>dplyr</code>; encadear operações com <code>%&gt;%</code>; obter
 contagens com <code>count()</code> e extrair vetores com
 <code>pull()</code>.</p>
-<p><strong>Arquivo para o exercício:</strong> mantenha <a href="tutoriais/00_escolas_exemplo.csv"><code>00_escolas_exemplo.csv</code></a>
-na mesma pasta do tutorial. Os dados são <strong>fictícios, destinados
-exclusivamente à aprendizagem</strong>. A atividade também apresenta o
-endereço do cadastro oficial e explica como adaptar o código quando
-houver uma versão acessível dos dados reais.</p>
+<p><strong>Fonte dos dados:</strong> <a href="https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas">Cadastro
+de escolas municipais, conveniadas e privadas — Prefeitura de São
+Paulo</a>. O Tutorial 0 lê o CSV diretamente da internet, portanto
+<strong>não requer arquivo de dados local</strong>. Sua execução depende
+de o endereço oficial estar acessível.</p>
 </div>
 <div id="nossa-primeira-raspagem-a-tabela-de-parques-nacionais" class="section level3">
 <h3>01 · Nossa primeira raspagem: a tabela de parques nacionais</h3>
@@ -545,8 +535,7 @@ Formulários na BDTD: resumos e metadados</a></strong></p>
 aprender a <strong>preencher e enviar um formulário de busca</strong>.
 Utilizaremos a <a href="https://bdtd.ibict.br/vufind/">Biblioteca
 Digital Brasileira de Teses e Dissertações (BDTD)</a> para pesquisar
-trabalhos relacionados a <strong>parques nacionais</strong>, tema que
-acompanha o curso desde a primeira atividade.</p>
+teses e dissertações sobre um tema.</p>
 <p>Depois de examinar o formulário e os resultados, visitaremos as
 páginas dos trabalhos encontrados para recuperar seus <strong>resumos
 (<em>abstracts</em>) e metadados bibliográficos</strong>. Cada linha do
@@ -589,26 +578,8 @@ lidos.</p>
 <hr />
 </div>
 </div>
-<div id="como-acompanhar-o-curso" class="section level2">
-<h2>Como acompanhar o curso</h2>
-<p><strong>1. Acesse os materiais.</strong> Abra os tutoriais pelos
-links acima. Para trabalhar no seu computador, baixe os arquivos
-individualmente ou utilize <strong>Code → Download ZIP</strong>, no topo
-da página do repositório.</p>
-<p><strong>2. Abra os arquivos no RStudio.</strong> Os tutoriais estão
-escritos em <strong>RMarkdown (<code>.Rmd</code>)</strong>, formato que
-combina texto, explicações e blocos executáveis de R. O GitHub mostra
-esses arquivos como código-fonte; para executar os exemplos e acompanhar
-a aula, abra-os no RStudio. No <strong>Tutorial 0</strong>, mantenha o
-arquivo <code>00_escolas_exemplo.csv</code> junto ao <code>.Rmd</code>,
-dentro de <code>tutoriais/</code>.</p>
-<p><strong>3. Execute os exercícios aos poucos.</strong> Não é
-necessário executar o arquivo inteiro de uma vez. Leia as explicações,
-rode cada bloco de código e examine os objetos criados com funções como
-<code>head()</code>, <code>class()</code>, <code>str()</code> e
-<code>View()</code>.</p>
-<div id="pacotes-necessários" class="section level3">
-<h3>Pacotes necessários</h3>
+<div id="pacotes-necessários" class="section level2">
+<h2>Pacotes necessários</h2>
 <p>Os principais pacotes utilizados são <code>tidyverse</code> (desde o
 Tutorial 0), <code>rvest</code>, <code>jsonlite</code>,
 <code>httr2</code> e <code>pdftools</code>. O pacote
@@ -627,7 +598,6 @@ as condições de acesso de cada fonte.</p>
 <hr />
 <p><strong>Materiais do curso:</strong> <a href="tutoriais/">pasta
 <code>tutoriais/</code></a> · <strong>Repositório:</strong> <a href="https://github.com/leobarone/cebrap-lab-raspagem-r-2026-virtual">cebrap-lab-raspagem-r-2026-virtual</a></p>
-</div>
 </div>
 </div>
 

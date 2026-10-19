@@ -20,7 +20,7 @@
 
 O curso é uma introdução à **raspagem de dados (*web scraping*) e ao uso de APIs com R**, voltada a estudantes e pesquisadores. Nosso principal objetivo será construir conjuntos de dados e coleções de documentos usando programação computacional. Trabalharemos com páginas HTML, formulários de busca, respostas de APIs e arquivos PDF, sempre procurando compreender como as informações são obtidas e organizadas para a análise.
 
-O curso foi pensado para pessoas que já tiveram uma primeira introdução ao **R e ao RStudio**. Vamos presumir familiaridade com a criação de objetos, vetores e *data frames*. Para retomar esses conhecimentos antes das atividades de coleta, acrescentamos um **Tutorial 0**, com exercícios introdutórios de manipulação de dados no *dplyr*. Ele pode ser realizado como preparação para a oficina ou utilizado para consulta ao longo dos encontros.
+O curso foi pensado para pessoas que já tiveram uma primeira introdução ao **R e ao RStudio**. Vamos presumir familiaridade com a criação de objetos, vetores e *data frames*. Para retomar esses conhecimentos antes das atividades de coleta, faça o **Tutorial 0**, com exercícios introdutórios de manipulação de dados no *dplyr*. Ele pode ser realizado como preparação para a oficina ou utilizado para consulta ao longo dos encontros.
 
 **Não é necessário conhecer previamente HTML, XML, JSON, XPath, raspagem de dados, formulários HTML ou APIs.** Esses conceitos serão apresentados durante as atividades.
 
@@ -28,15 +28,12 @@ O curso foi pensado para pessoas que já tiveram uma primeira introdução ao **
 
 Ao final da oficina, esperamos que você consiga:
 
-- Importar arquivos CSV, reconhecer a estrutura de um *data frame* e manipular dados com `rename()`, `select()`, `mutate()`, `filter()`, `count()` e `pull()`.
 - Capturar informações de uma página da internet e transformá-las em *data frames* no R.
 - Reconhecer elementos, atributos e a estrutura hierárquica de documentos HTML e XML.
 - Usar XPath e seletores CSS para localizar informações e extrair textos e links.
 - Utilizar `for loops` para repetir coletas e armazenar seus resultados.
 - Compreender a estrutura de arquivos JSON e fazer consultas simples a uma API de dados abertos.
 - Identificar, preencher e enviar formulários HTML utilizando as funções atuais do pacote *rvest*.
-- Pesquisar teses e dissertações na BDTD e reunir seus metadados bibliográficos e resumos em um *corpus*.
-- Consultar os detalhes de proposições legislativas e recuperar os endereços de seus documentos de inteiro teor.
 - Baixar arquivos PDF, extrair seus textos e construir um *corpus* organizado em um *data frame*, associado aos metadados das proposições.
 - Conferir os resultados da coleta e reconhecer os cuidados necessários ao trabalhar com fontes disponíveis na internet.
 
@@ -48,11 +45,11 @@ Os materiais estão na pasta **[`tutoriais/`](tutoriais/)**. São **sete tutoria
 
 **[Tutorial 0 — Manipulando dados com dplyr](tutoriais/00_tutorial_inicial_r.Rmd)**
 
-Antes de começar a coleta de informações pela internet, retomaremos os comandos básicos que serão utilizados em todo o curso. O exemplo trabalha com uma **pequena base fictícia de escolas**, inspirada na estrutura do cadastro municipal de São Paulo, para que seja possível executar os exercícios mesmo sem acessar um arquivo externo.
+Antes de começar a coleta de informações pela internet, retomaremos os comandos básicos que serão utilizados em todo o curso. O exemplo utiliza o **Cadastro de escolas municipais, conveniadas e privadas da Prefeitura de São Paulo**, consultado diretamente por sua URL oficial, para praticar a manipulação de dados públicos reais.
 
 **O que vamos aprender:** instalar e carregar pacotes; importar arquivos CSV com `read_csv2()`; distinguir objetos, vetores, colunas e linhas; explorar *data frames* com `head()`, `names()` e `glimpse()`; renomear, selecionar, transformar e filtrar variáveis com `dplyr`; encadear operações com `%>%`; obter contagens com `count()` e extrair vetores com `pull()`.
 
-**Arquivo para o exercício:** mantenha [`00_escolas_exemplo.csv`](tutoriais/00_escolas_exemplo.csv) na mesma pasta do tutorial. Os dados são **fictícios, destinados exclusivamente à aprendizagem**. A atividade também apresenta o endereço do cadastro oficial e explica como adaptar o código quando houver uma versão acessível dos dados reais.
+**Fonte dos dados:** [Cadastro de escolas municipais, conveniadas e privadas — Prefeitura de São Paulo](https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas). O Tutorial 0 lê o CSV diretamente da internet, portanto **não requer arquivo de dados local**. Sua execução depende de o endereço oficial estar acessível.
 
 ### 01 · Nossa primeira raspagem: a tabela de parques nacionais
 
@@ -92,7 +89,7 @@ Retomaremos essas consultas no Tutorial 6, quando utilizaremos os endereços dos
 
 **[Tutorial 5 — Formulários na BDTD: resumos e metadados](tutoriais/05_formularios_bdtd_resumos_metadados.Rmd)**
 
-Até aqui capturamos páginas e consultamos uma API. Agora vamos aprender a **preencher e enviar um formulário de busca**. Utilizaremos a [Biblioteca Digital Brasileira de Teses e Dissertações (BDTD)](https://bdtd.ibict.br/vufind/) para pesquisar trabalhos relacionados a **parques nacionais**, tema que acompanha o curso desde a primeira atividade.
+Até aqui capturamos páginas e consultamos uma API. Agora vamos aprender a **preencher e enviar um formulário de busca**. Utilizaremos a [Biblioteca Digital Brasileira de Teses e Dissertações (BDTD)](https://bdtd.ibict.br/vufind/) para pesquisar teses e dissertações sobre um tema.
 
 Depois de examinar o formulário e os resultados, visitaremos as páginas dos trabalhos encontrados para recuperar seus **resumos (*abstracts*) e metadados bibliográficos**. Cada linha do nosso *data frame* corresponderá a uma tese ou dissertação, e não a um artigo de periódico.
 
@@ -112,15 +109,8 @@ Ao final, teremos os PDFs baixados e um pequeno *corpus* em que cada linha corre
 
 ---
 
-## Como acompanhar o curso
 
-**1. Acesse os materiais.** Abra os tutoriais pelos links acima. Para trabalhar no seu computador, baixe os arquivos individualmente ou utilize **Code → Download ZIP**, no topo da página do repositório.
-
-**2. Abra os arquivos no RStudio.** Os tutoriais estão escritos em **RMarkdown (`.Rmd`)**, formato que combina texto, explicações e blocos executáveis de R. O GitHub mostra esses arquivos como código-fonte; para executar os exemplos e acompanhar a aula, abra-os no RStudio. No **Tutorial 0**, mantenha o arquivo `00_escolas_exemplo.csv` junto ao `.Rmd`, dentro de `tutoriais/`.
-
-**3. Execute os exercícios aos poucos.** Não é necessário executar o arquivo inteiro de uma vez. Leia as explicações, rode cada bloco de código e examine os objetos criados com funções como `head()`, `class()`, `str()` e `View()`.
-
-### Pacotes necessários
+## Pacotes necessários
 
 Os principais pacotes utilizados são `tidyverse` (desde o Tutorial 0), `rvest`, `jsonlite`, `httr2` e `pdftools`. O pacote `pdftools` será utilizado no **Tutorial 6**, para a leitura dos PDFs. Caso ainda não estejam instalados, execute no R:
 

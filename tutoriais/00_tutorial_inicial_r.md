@@ -1,386 +1,413 @@
-# Tutorial Inicial - Manipulação de dados com **dplyr**
+---
+title: "Tutorial 0 — Primeiros passos no R: manipulando dados com dplyr"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: false
+---
 
-Um dos aspectos mais incríveis da linguagem R é o desenvolvimento de novas funcionalidades pela comunidade de usuárias e usuários. 
-
-Há diversas "gramática para bases de dados", ou seja, formas de importar, organizar, manipular e extrair informações das bases de dados, que foram desenvolvidas ao longo da última década.
-
-A "gramática" mais popular da linguagem é a do pacote _dplyr_, parte do _tidyverse_. Nesta oficina veremos como utilizar algumas das principais funções, ou "verbos", do pacote _dplyr_.
-
-Existem outras formas de se trabalhar com conjuntos de dados mais, digamos, antigas. É comum encontrarmos códigos escritos na "gramática" original da linguagem, que chamaremos de "base" ou "básico".
-
-Podemos pensar na linguagem R como uma língua com diversos dialétos. Os dois dialétos mais falados para manipulação de dados são o "base" e o do pacote _dplyr_.
-
-# Instalando e carregando pacotes no R
-
-Quando você abre R ou RStudio, diversas funções estão disponíveis para uso. Elas são parte do pacote "base", que é carregado automaticamente. "base" é a linguagem tal como ela foi desenhada originalmente.
-
-Se quiseremos utilizar funções de pacotes desenvolvidos na comunidade de R que não sejam parte do "base", precisamos instalar _pacotes_ e carregá-los ao iniciar a seção. Vamos ver como fazer isso.
-
-Em primeiro lugar, vamos instalar um pacote. Começaremos com o _dplyr_
-
-```{r}
-install.packages('dplyr')
+```{r configuracao, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
-Lembre-se de colocar aspas no nome do pacote, pois, até agora, _dplyr_ é um nome desconhecido para a linguagem R no seu computador.
+# Apresentação
 
-Após a instalação, sempre que queremos utilizar o pacote _dplyr_ devemos carregá-lo com a função _library_. Você deve fazer isso toda vez que abrir R.
+Um dos aspectos mais interessantes da linguagem R é a possibilidade de ampliar suas funcionalidades com pacotes desenvolvidos pela comunidade de usuárias e usuários. Ao longo do tempo, surgiram diferentes formas de importar, organizar e analisar bases de dados.
 
-```{r}
-library(dplyr)
+Uma das mais utilizadas é a do pacote *dplyr*, parte do *tidyverse*. Seus comandos costumam ser chamados de **verbos**, porque representam operações como selecionar, filtrar, transformar e resumir informações.
+
+Também podemos realizar essas tarefas utilizando as funções que já vêm com o R, frequentemente chamadas de funções do *R base*. Não são linguagens diferentes: são maneiras diferentes de resolver problemas no mesmo ambiente.
+
+Este é nosso **Tutorial 0**, uma atividade de revisão dos conhecimentos que utilizaremos nos próximos tutoriais sobre raspagem de páginas, APIs e construção de coleções de textos. Vamos começar por um cadastro real de escolas, disponível na internet, e utilizá-lo para praticar a manipulação de dados.
+
+Ao final, você deverá conseguir importar um arquivo CSV, examinar um *data frame* e usar `rename()`, `select()`, `mutate()`, `filter()` e o operador `%>%`. Retomaremos também a criação de objetos, os argumentos das funções e a extração de uma coluna com `pull()`.
+
+# Instalando e carregando pacotes
+
+Quando abrimos o R ou o RStudio, algumas funções já estão disponíveis. Outras precisam ser instaladas por meio de **pacotes**.
+
+**Instalar** e **carregar** são coisas diferentes. Instalamos um pacote uma vez em nosso computador; carregamos o pacote a cada nova sessão em que pretendemos utilizá-lo.
+
+Se você ainda não tem o *tidyverse*, execute **uma vez**, no console do R:
+
+```{r instalar-pacote, eval=FALSE}
+install.packages("tidyverse")
 ```
 
-Pronto!
+Depois, carregue o pacote:
 
-Antes de avançar, treine com outros dois pacotes: _ggplot2_, que é a gramática de visualização de dados que utilizaremos na oficina; e _tidyverse_, que é um pacote guarda-chuva que contém _dplyr_, _gglopt2_ e vários outros, ou seja, ao carregá-lo, você carrega um conjunto de pacotes. Tidyverse também é um "movimento" de reescrever a linguagem sobre a qual falaremos um pouquinho. 
-
-# Introdução ao pacote _dplyr_
-
-## Começando pelo meio: data frames
-
-Uma característica distintiva da linguagem de programação R é ter sido desenvolvida para a análise de dados. E quando pensamos em análise de dados, a protagonista do show é a _base de dados_ ou, como vamos conhecer a partir de agora, __data frame__.
-
-Por esta razão, em vez de aprender como fazer aritmética, elaborar funções ou executar loops para repetir tarefas e outros aspectos básicos da linguagem, vamos começar olhando para o R como um software concorrente dos demais utilizados para análise de dados em ciências sociais, como SPSS, Stata, SAS e companhia.
-
-As principais características de um data frame são: (1) cada coluna representa uma variável (ou característica) de um conjunto de observações; (2) cada linha representa uma observação e contém os valores de cada variável para tal observação. Vejamos um exemplo:
-
-| Candidato | Partido | Votos | 
-| --------- |:-------:| -----:|
-| Beatriz   | PMDB    |   350 | 
-| Danilo    | SOL     |  1598 | 
-| Pedro     | PTB     |   784 | 
-| Davi      | PSD     |   580 | 
-| Mateus    | PV      |   2   | 
-
-Note que em uma linha os elementos são de tipos de diferentes: na primeira coluna há uma nome (texto), na segunda uma sigla de partido (texto, mas limitado a um conjunto de siglas) e na terceira votos (número inteiros). 
-
-Por outro lado, em cada coluna há somente elementos de um tipo. Por exemplo, há apenas números inteiros na coluna votos. Colunas são variáveis e por isso aceitam registros de um único tipo. Se você já fez um curso de estatísticas básica ou de métodos quantitativos deve se lembrar que as variáveis são classificadas da seguinte maneira:
-
-1- Discretas
-
-  - Nominais, que são categorias (normalmente texto) não ordenadas
-  
-  - Ordinais, que são categorias (normalmente texto) ordenadas
-  
-  - Inteiros, ou seja, o conjunto dos números inteiros
-
-2- Contínuas, números que podem assumir valores não inteiros
-
-Se destacamos uma coluna do nosso data frame, temos um __vetor__. Por exemplo, a variável "Votos" pode ser presentado da seguinte maneira: {350, 1598, 784, 580, 2}. Um data frame é um conjunto de variáveis (vetores!) dispostos na vertical e combinados um ao lado do outro.
-
-Data frame e vetores são __objetos__ na linguagem R.
-
-Vamos ver como o R representa vetores e data frames na tela. Antes disso, é preciso "abrir" um data frame.
-
-## Cadastro de Escolas
-
-Neste tutorial vamos trabalhar com as bases de dados da educação municipal da cidade de São Paulo. Em particular, vamos começar trabalhando com o  cadastro de escolas da Prefeitura de São Paulo.
-
-A página na qual você encontrará o cadastro de escolas é essa aqui [aqui](https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas). Comece baixando o dicionário de dados e os dados mais atuais.
-
-## Abrindo dados em R com botão
-
-Se você decidiu aprender a programar em R, provavelmente quer substituir a análise de dados com cliques no mouse que fazemos no editor de planilhas pela construção de scripts que documentam o passo a passo da análise. Daqui em diante estaremos num mundo sem botões. Exceto um, por enquanto, aí no canto direito superior chamado "Import Dataset".
-
-Clique no botão. Veja que temos a opção de importar arquivos de texto com duas bibliotecas diferentes, _base_ e _readr_ (que é o pacote de abertura de dados do _tidyverse_) e dados em alguns outros formatos, como MS Excel e outros softwares de análise estatística.
-
-Use a primeira opção, "From Text (base)" para carregar os dados do cadastro de escola.
-
-## Abrindo dados em R (com script)
-
-
-(Lembre-se de instalar e carregar o pacote _tidyverse_ antes de prosseguir)
-
-```{r}
-install.packages('tidyverse')
+```{r carregar-pacotes}
 library(tidyverse)
 ```
 
-Use o recurso "Import Dataset" enquanto não se sentir confortável com a linguagem. Mas, aos poucos, vá abandonando. Abrir dados em R é muito simples.
+O *tidyverse* é um conjunto de pacotes que inclui, entre outros, o *dplyr* (manipulação de dados), o *readr* (leitura e escrita de arquivos) e o *ggplot2* (visualização de dados). Nesta atividade, nosso foco será a manipulação de tabelas.
 
-Repetindo o procedimento com código, para abrir o cadastro de escola basta fazer:
+**Obs.:** evitamos executar `install.packages()` automaticamente ao gerar o HTML com **Knit**, pois uma instalação depende do computador e da conexão com a internet. Faça-a no console quando necessário.
 
-```{r}
+# Começando pelo meio: data frames
+
+Uma característica importante do R é sua utilização na análise de dados. E, quando pensamos em análise, uma das protagonistas é a **base de dados**, representada frequentemente por um *data frame*.
+
+Em um *data frame*, cada **linha** representa uma observação e cada **coluna** representa uma variável. Por exemplo, imagine esta pequena tabela fictícia:
+
+| Candidato | Partido | Votos |
+|:---|:---|---:|
+| Beatriz | MDB | 350 |
+| Danilo | PSOL | 1598 |
+| Pedro | PTB | 784 |
+| Davi | PSD | 580 |
+| Mateus | PV | 2 |
+
+Cada linha representa uma candidatura. As colunas guardam informações diferentes sobre ela. `Candidato` e `Partido` contêm textos; `Votos`, números.
+
+Em R, os elementos de uma mesma coluna geralmente compartilham um tipo de dado: `character` para textos, `integer` ou `numeric` para números, `logical` para valores `TRUE` e `FALSE`, entre outros. Classificações como **nominal**, **ordinal** e **contínua**, que encontramos nos cursos de estatística, dizem respeito à natureza das variáveis; não são exatamente os tipos de objetos utilizados pelo R.
+
+Se destacarmos a coluna de votos, teremos um **vetor** com os valores `350`, `1598`, `784`, `580` e `2`. Um *data frame* reúne várias colunas dessa maneira.
+
+*Data frames* e vetores são **objetos** do R: informações guardadas na memória e identificadas por nomes. Vamos utilizá-los agora com um exemplo mais próximo da pesquisa com dados públicos.
+
+# Cadastro de escolas
+
+Trabalharemos com o **Cadastro de escolas municipais, conveniadas e privadas**, publicado pela Prefeitura de São Paulo no [Portal de Dados Abertos](https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas).
+
+Nosso arquivo é uma edição do cadastro identificada como `escolas122024.csv`, referente a dezembro de 2024. Ele contém informações sobre as unidades escolares, como nome, tipo de escola, códigos de identificação e Diretoria Regional de Educação.
+
+Antes de executar o código, visite a página do conjunto de dados e procure o arquivo e seu dicionário de variáveis. Em uma pesquisa, conhecer a origem dos dados e o significado das colunas é parte do trabalho.
+
+## Abrindo dados diretamente da internet
+
+Um arquivo CSV é um documento de texto que armazena informações em formato de tabela. Podemos abri-lo com uma função do R sem precisar baixá-lo manualmente para uma pasta.
+
+Vamos guardar o endereço do arquivo em um objeto de texto e depois utilizá-lo para ler os dados:
+
+```{r abrir-escolas}
 url_escolas <- "https://dados.prefeitura.sp.gov.br/dataset/8da55b0e-b385-4b54-9296-d0000014ddd5/resource/533188c6-1949-4976-ac4e-acd313415cd1/download/escolas122024.csv"
 
-escolas <- read_csv2(url_escolas)
+escolas <- read_csv2(url_escolas, show_col_types = FALSE)
 ```
 
-Em R, as funções "read." são as funções de abertura de dados do _base_ e as funções "read_" são as análogas do pacote _readr_, parte do _tidyverse_. Há funções "read" para abrir/ler/carregar todos os tipos de dados, de arquivos de texto a páginas em HTML.
+A função `read_csv2()`, do pacote *readr*, lê arquivos em que as colunas são separadas, por padrão, por **ponto e vírgula**. A função `read_csv()` espera, por padrão, colunas separadas por **vírgulas**. O argumento `show_col_types = FALSE` apenas esconde a mensagem que descreve os tipos de colunas reconhecidos.
 
-No nosso caso, utilizamos a função _read\_csv2_ para abrir um arquivo de texto cujos valores das colunas são separados por vírgula. Infelizmente, não há tempo para aprender sobre as variedades das funções de abertura de dados, mas você pode aprender um pouco mais [aqui](https://jonnyphillips.github.io/FLS6397_2019/tutorials/tutorial04.html) ou [aqui](https://r4ds.had.co.nz/data-import.html).
+Em R, o símbolo `<-` serve para **atribuição**: o resultado à direita é guardado em um objeto cujo nome aparece à esquerda. Criamos, assim, o objeto `escolas`, que agora contém os dados do cadastro.
 
-Note que utilizamos o URL dos dados diretamente. Não precisamos fazer download para uma pasta local para, depois, abrir os dados. 
+Veja que `url_escolas` contém um endereço na internet, não o caminho de um arquivo no computador. Retomaremos essa distinção nos tutoriais de raspagem.
 
-Um jeito mais confortável, na mina opinião, de fazer a abertura de dados com um URL é guardar o URL em um objeto de texto e, depois, utilizar esse objeto como input da função:
+**Obs.:** estamos usando um endereço de um arquivo público. Se ele estiver temporariamente indisponível ou for alterado pela Prefeitura, será necessário consultar a página do conjunto de dados antes de continuar. O código desta atividade depende do acesso a esse arquivo real; não utilizaremos um conjunto de dados substituto.
 
-```{r}
-url_escolas <- "https://dados.prefeitura.sp.gov.br/dataset/8da55b0e-b385-4b54-9296-d0000014ddd5/resource/533188c6-1949-4976-ac4e-acd313415cd1/download/escolas122024.csv"
-escolas <- read_csv2(url_escolas)
+## Conferindo os nomes das colunas
+
+Arquivos publicados em momentos diferentes podem apresentar pequenas mudanças nos nomes das variáveis. Vamos conferir o cabeçalho:
+
+```{r conferir-cabecalho-original}
+names(escolas)
 ```
 
-Note que, pela segunda vez, utilizamos o símbolo "<-". Ele é um símbolo de atribuição, e é um das marcas mais importantes da linguagem. Atribuir, significa "guardar na memória com um nome". O nome é o que vai do lado esquerdo. A parte do lado direito da equação de atribuição é o objeto a ser guardado.
+Para que os exemplos usem a mesma grafia, colocaremos os nomes das colunas em maiúsculas. Algumas edições do cadastro utilizam `NOMESC` para o nome da escola, e outras podem utilizar `NOMES`. Faremos essa pequena padronização, caso seja necessária:
 
-Você pode usar "=" no lugar de "<-". Mas, aviso desde já, há casos em R em que há ambiguidade e os símbolos não funcionam como esperado.
+```{r padronizar-cabecalho}
+names(escolas) <- toupper(names(escolas))
 
-Vamos avançar.
+if ("NOMESC" %in% names(escolas)) {
+  escolas <- escolas %>%
+    rename(NOMES = NOMESC)
+}
 
-### Explorando sem olhar para a matriz de dados
+names(escolas)
+```
 
-No editor de planilhas estamos acostumados a ver os dados, célula a célula. Mas será que é realmente útil ficar olhando para os dados? Você perceberá com o tempo que olhar os dados é desnecessário e até contraproducente.
+O `if` apenas verifica se a coluna `NOMESC` existe e, nesse caso, muda seu nome para `NOMES`. Ele não altera os registros das escolas. Não precisamos estudar agora os detalhes dessa condição: utilizaremos os demais comandos de manipulação com os nomes assim definidos.
 
-Você pode ver os dados clicando no nome do objeto que está no "Environment" ou utilizando a função _View_ (cuidado, o "V" é maiúsculo, algo raro em nomes de funções de R).
+Vamos também guardar a versão original da tabela em outro objeto, para podermos retomar as variáveis antes das transformações, **sem fazer outra solicitação ao servidor**:
 
-```{r}
+```{r guardar-base-original}
+escolas_originais <- escolas
+```
+
+Os dois objetos estão na memória do R. Não estamos criando uma cópia do CSV no computador.
+
+# Conhecendo a base sem olhar todas as linhas
+
+Podemos examinar a tabela inteira no RStudio com `View()`, mas isso não é necessário para conhecer sua estrutura. Se quiser, execute o comando a seguir no console:
+
+```{r visualizar-tabela, eval=FALSE}
 View(escolas)
 ```
 
-Agora que carregamos o cadastro de escolas na memória, vamos conhecer um pouco sobre estes dados sem olhar para a matriz de dados.
+A função `head()` mostra, por padrão, as seis primeiras linhas:
 
-Podemos rapidamente olhar para uma "amostra" dos dados com a função _head_, que nos apresenta as 6 primeiras linhas do conjunto de dados.
-
-```{r}
+```{r primeiras-linhas}
 head(escolas)
 ```
 
-Com apenas as 6 primeiras linhas do data frame temos noção de todo o conjunto. Sabemos rapidamente que existem informações sobre o nome das escolas, seus códigos de cadastro, de que tipo de escola se trata, à qual diretoria regional de ensino (DRE) pertence, etc.
+Quantas escolas há? Basta contar as linhas:
 
-Quantas escolas há? Há tantas escolas quanto linhas no data frame. Com _nrow_ descobrimos quantas são.
-
-```{r}
+```{r dimensoes}
 nrow(escolas)
-```
-
-Quantas informações temos disponíveis para cada escola? Ou seja, quantas variáveis há no conjunto de dados?
-
-```{r}
 ncol(escolas)
 ```
 
-Qual é o nome das variáveis?
+`nrow()` informa quantas linhas existem; `ncol()`, quantas colunas. E, para conhecer os nomes das variáveis:
 
-```{r}
+```{r nomes-colunas}
 names(escolas)
 ```
 
-## Pausa para um comentário
+Também podemos examinar a estrutura do objeto:
 
-Podemos fazer comentários no meio do código. Basta usar # e tudo que seguir até o final da linha não será interpertado pelo R como código. Por exemplo:
-
-```{r}
-# Imprime o nome das variaveis do data frame cadastro
-names(escolas)
-
-names(escolas) # Repetindo o comando acima com comentario em outro lugar
-```
-
-Comentários são extremamente úteis para documentar seu código. Documentar é parte de programar e você deve pensar nas pessoas com as quais vai compartilhar o código e no fato de que com certeza não se lembrará do que fez em pouco tempo (garanto, você vai esquecer).
-
-## Argumentos ou parâmetros das funções
-
-Note que em todas as funções que utilizamos até agora, _escolas_ está dentro do parênteses que segue o nome da função. Essa __sintaxe__ é característica das funções de R. O que vai entre parêntesis são os __argumentos__ ou __parâmetros__ da função, ou seja, os "inputs" que serão transformados.
-
-Uma função pode receber mais de um argumento. Pode também haver argumentos não obrigatórios, ou seja, para os quais não é necessário informar nada se você não quiser alterar os valores pré-definidos. Por exemplo, a função _head_ contém o argumento _n_, que se refere ao número de linhas a serem __impressas__ na tela, pré-estabelecido em 6 (você pode conhecer os argumentos da função na documentação do R usando _?_ antes do nome da função). Para alterar o parâmetro _n_ para 10, por exemplo, basta fazer:
-
-```{r}
-head(x = escolas, n = 10)
-```
-
-_x_ é o argumento que já havíamos utilizado anteriormente e indica em que objeto a função _head_ será aplicada. Dica: você pode omitir tanto "x =" quanto "n =" se você já conhecer a ordem de cada argumento no uso da função.
-
-## Mais funções para explorar os dados
-
-Todos os objetos em R tem uma estrutura. Você pode investigar essa estrutura utilizando a função _str_. No caso de data frames, o output é legível (para outras classes de objeto isso não é verdade necessariamente):
-
-```{r}
+```{r estrutura-dados}
+class(escolas)
 str(escolas)
-```
-
-Há informações sobre o nome das variáveis, dispostas na vertical, tipo de dados (texto -- char -- ou números -- num ou int) e uma amostra das primeiras observações.
-
-Uma função semelhante, e com resultado um pouco mais "limpo", é _glimpse_, parte do _dplyr_:
-
-```{r}
 glimpse(escolas)
 ```
 
-Vamos agora renomear os dados.
+`class()` informa a classe do objeto. `str()` apresenta sua estrutura e os tipos de variáveis. `glimpse()`, do *dplyr*, traz um resumo semelhante em um formato conveniente para *data frames*.
 
-## Renomeando variáveis
+## Comentários e argumentos das funções
 
-Quando trabalhamos com dados que não coletamos, em geral, não vamos gostar dos nomes das variáveis que quem produziu os dados escolheu. Mais ainda, com certa frequência, obtemos dados cujos nomes das colunas são compostos ou contêm acentuação, cedilha e demais caracteres especiais. Dá um tremendo trabalho usar nomes com tais característica, apesar de possível. O ideal é termos nomes sem espaço (você pode usar ponto ou subscrito para separar palavras em um nome composto) e que contenham preferencialmente letras minísculas sem acento e números.
+Podemos escrever comentários no código. Basta usar `#`; tudo o que vem depois dele, até o final da linha, é tratado como comentário:
 
-Vamos começar renomeando algumas variáveis no nosso banco de dados, cujos nomes vemos com o comando abaixo:
+```{r comentarios}
+# Quais são os nomes das colunas?
+names(escolas)
 
-```{r}
+nrow(escolas) # Quantidade de linhas
+```
+
+Comentários são úteis para documentar o que fazemos, especialmente quando compartilhamos o código com outras pessoas ou voltamos a ele meses depois.
+
+Observe também os parênteses das funções. Tudo o que colocamos dentro deles corresponde aos **argumentos** da função. Algumas funções recebem vários argumentos, e alguns possuem valores previamente definidos.
+
+Por exemplo, para mostrar dez linhas em vez das seis que aparecem por padrão, escrevemos:
+
+```{r argumentos-head}
+head(x = escolas, n = 10)
+```
+
+`x` indica o objeto e `n` indica quantas linhas queremos ver. Podemos consultar a ajuda de uma função com `?head`, diretamente no console.
+
+# Renomeando variáveis
+
+Quando utilizamos dados que não produzimos, frequentemente encontramos nomes de variáveis pouco confortáveis para escrever códigos. Podemos preferir nomes curtos, sem espaços, em letras minúsculas e com `_` para separar palavras.
+
+Veja os nomes das variáveis do cadastro:
+
+```{r conferir-nomes-originais}
 names(escolas)
 ```
 
-O primeiro argumento da função _rename_ deve ser o objeto cujos nomes das variáveis serão renomeados. Depois da primeira vírgula, inserimos todas as modificações de nomes, novamente separadas por vírgulas, e da seguinte maneira. Exemplo 1: nome\_novo = nome\_velho. Exemplo 2: nome\_novo = Nome_Velho. Veja o exemplo abaixo, em que damos novos nomes às variáveis "tipoesc", "latitute" e "longitude":
+Vamos começar renomeando três colunas:
 
-```{r}
+```{r primeiro-rename}
 escolas <- rename(escolas, tipo = TIPOESC, lat = LATITUDE, lon = LONGITUDE)
+
+names(escolas)
 ```
 
-Simples, não? 
+A função `rename()` usa a ordem **nome_novo = nome_antigo**. O comando modifica os nomes no objeto `escolas` porque guardamos o resultado novamente nele, com `<-`.
 
 ## Uma gramática, duas formas
 
-No _tidyverse_, existe uma outra sintaxe para executar a mesma tarefa de (re)nomeação. Vamos olhar para ela (lembre-se de carregar novamente os dados, pois os nomes velhos já não existem mais e não existe Ctrl+Z em R):
+No *tidyverse*, podemos escrever a mesma operação com o operador `%>%`, chamado *pipe*. Antes, porém, vamos recuperar a versão inicial dos dados, pois as colunas `TIPOESC`, `LATITUDE` e `LONGITUDE` já foram renomeadas:
 
-```{r, eval = F}
-escolas <- read_csv2(url_escolas)
+```{r reabrir-escolas}
+escolas <- escolas_originais
+```
 
+Agora faremos uma renomeação mais completa:
+
+```{r renomear-colunas}
 escolas <- escolas %>%
-  rename(tipo = TIPOESC,
-         lat = LATITUDE,
-         lon = LONGITUDE)
+  rename(
+    dre_abreviatura = DRE,
+    codigo = CODESC,
+    tipo = TIPOESC,
+    nome = NOMES,
+    dre = DIRETORIA,
+    lat = LATITUDE,
+    lon = LONGITUDE,
+    codigo_inep = CODINEP
+  )
+
+names(escolas)
 ```
 
-Usando o operador %>%, denominado _pipe_, retiramos de dentro da função _rename_ o data frame cujas variáveis serão renomeadas. As quebras de linha depois do %>% e dentro da função _rename_ são opcionais. Porém, o pardão é 'verticalizar o código' e colcar os 'verbos' à esquerda, o que torna sua leitura mais confortável.
+Podemos ler: **pegue o objeto `escolas` e aplique a ele a função `rename()`**. O `%>%` passa o resultado de uma etapa para a seguinte.
 
-Compare com o código que havíamos executado anteriormente:
+Compare com `rename(escolas, ...)`, que escrevemos anteriormente. O resultado é o mesmo, mas o *pipe* permite colocar várias operações em sequência. Utilizaremos essa forma nos próximos tutoriais.
 
-```{r, eval = F}
-escolas <- read_csv2(url_escolas)
+**Obs.:** o R também tem o operador nativo `|>`. Nesta oficina, manteremos `%>%`, como nos outros exemplos do curso.
 
-escolas <- rename(escolas, tipo = TIPOESC, lat = LATITUDE, lon = LONGITUDE)
-```
+# Selecionando colunas com `select()`
 
-Essa outra sintaxe tem uma vantagem grande sobre a anterior: ela permite emendar uma operação de transformação do banco de dados na outra. Veremos adiante como fazer isso. Por enquanto, tenha em mente que o resultado é o mesmo para qualquer uma das duas formas.
+Nem sempre precisamos de todas as variáveis presentes na base. Podemos selecionar somente as que nos interessam:
 
-Vamos trabalhar com várias variáveis (sic) de uma única vez. Reabra o banco de dados:
-
-```{r, include = F, echo=F}
-escolas <- read_csv2(url_escolas)
-```
-
-Renomeie as variáveis "dre", "codesc", "tipoesc", "nomesc", "diretoria", "latitude", "longitude" e "codinep".
-
-```{r, include = F, echo=F}
+```{r selecionar-colunas}
 escolas <- escolas %>%
-  rename(dre_abreviatura = DRE,
-         codigo = CODESC,
-         tipo = TIPOESC,
-         nome = NOMES,
-         dre = DIRETORIA,
-         lat = LATITUDE,
-         lon = LONGITUDE,
-         codigo_inep = CODINEP)
+  select(dre_abreviatura, codigo, tipo, nome, dre, lat, lon, codigo_inep)
+
+head(escolas)
 ```
 
-## Selecionando colunas
+Observe que `select()` escolhe **colunas**, não linhas.
 
-Algumas colunas podem ser dispensáveis em nosso banco de dados a depender da análise. Por exemplo, pode ser que nos interessem apenas as variáveis que já renomeamos. Para selecionar um conjunto de variáveis, utilizaremos o segundo verbo do _dplyr_ que aprenderemos: _select_
+## Encadeando operações com `%>%`
 
-```{r}
-escolas <- select(escolas, dre_abreviatura, codigo, tipo, nome, dre, lat, lon, codigo_inep)
+Uma das vantagens do *pipe* é poder ler o código como uma sequência de tarefas. Vamos refazer a renomeação e a seleção diretamente a partir do objeto com os dados originais:
+
+```{r exemplo-encadeamento}
+escolas <- escolas_originais %>%
+  rename(
+    dre_abreviatura = DRE,
+    codigo = CODESC,
+    tipo = TIPOESC,
+    nome = NOMES,
+    dre = DIRETORIA,
+    lat = LATITUDE,
+    lon = LONGITUDE,
+    codigo_inep = CODINEP
+  ) %>%
+  select(dre_abreviatura, codigo, tipo, nome, dre, lat, lon, codigo_inep)
 ```
 
-ou usando o operador %>%, chamado __pipe__.
+Começamos pelo *data frame* que recuperamos da internet. Em seguida, `rename()` altera os nomes de algumas colunas e `select()` escolhe quais devem permanecer. A primeira leitura, feita com `read_csv2(url_escolas)`, continua documentada no início da atividade.
 
-Nota: o operador |> agora é nativo de R, mas tanto faz utilizar |> ou %>%). Nos tutoriais vamos ficar com a forma antiga %>%
+**Exercício:** use `select()` para criar um novo objeto contendo apenas o nome, o tipo e a Diretoria Regional de Educação de cada escola. Confira seus nomes com `names()`.
 
-```{r}
+# Transformando variáveis com `mutate()`
+
+Usamos `mutate()` para modificar uma variável existente ou criar outra nova. Uma transformação pode envolver uma operação matemática, uma comparação ou uma expressão que produza textos.
+
+Por exemplo, podemos criar uma coluna que informa a quantidade de caracteres dos nomes das escolas. A função `nchar()` faz essa contagem:
+
+```{r criar-numero-caracteres}
 escolas <- escolas %>%
-  select(dre_abreviatura,
-         codigo,
-         tipo,
-         nome,
-         dre,
-         lat,
-         lon,
-         codigo_inep)
+  mutate(n_caracteres_nome = nchar(nome))
+
+head(escolas)
 ```
 
-## Operador %>% para "emendar" tarefas
+Acrescentamos uma coluna ao cadastro sem modificar o conteúdo das anteriores. Como não atribuímos o resultado diretamente à coluna `nome`, ela continua disponível com os nomes das escolas.
 
-O que o operador __pipe__ faz é simplesmente colocar o primeiro argumento da função (no caso acima, o _data frame_), fora e antes da própria função. Ele permite lermos o código, informalmente, da seguinte maneira: "pegue o data frame x e aplique a ele esta função". Veremos abaixo que podemos fazer uma cadeia de operações ("pipeline"), que pode ser lida informalmente como: "pegue o data frame x e aplique a ele esta função, e depois essa, e depois essa outra, etc".
+Também podemos criar uma variável que indica se uma escola é do tipo EMEI, usando uma comparação:
 
-A grande vantagem de trabalharmos com o operador %>% é não precisar repetir o nome do _data frame_ diversas vezes ao aplicarmos a ele um conjunto de operações.
+```{r criar-nova-variavel}
+escolas <- escolas %>%
+  mutate(eh_emei = tipo == "EMEI")
 
-Vejamos agora como usamos o operador %>% para "emendar" tarefas, começando da abertura desde dados. Note que o primeiro input é o url da base de dados e, que, uma vez carregados, vai sendo transformado a cada novo verbo.
-
-```{r}
-escolas <- url_escolas %>%
-  read_csv2() %>%
-  rename(dre_abreviatura = DRE,
-         codigo = CODESC,
-         tipo = TIPOESC,
-         nome = NOMES,
-         dre = DIRETORIA,
-         lat = LATITUDE,
-         lon = LONGITUDE,
-         codigo_inep = CODINEP)  %>%
-  select(dre_abreviatura,
-         codigo,
-         tipo,
-         nome,
-         dre,
-         lat,
-         lon,
-         codigo_inep)
+head(escolas)
 ```
 
-Em uma única sequência de operações, abrimos os dados, alteramos os nomes das variáveis e selecionamos as que permaneceriam no banco de dados. Esta forma de programa,r tenha certeza, é bastante mais econômica e mais fácil de ler, pois podemos identificar erros mais facilmente.
+A nova coluna contém `TRUE` quando a condição é satisfeita e `FALSE` quando não é. Ela nos ajudará a compreender os filtros.
 
-## Transformando variáveis
+**Exercício:** use `mutate()` para criar uma coluna chamada `nome_com_tipo`, reunindo `tipo` e `nome` com a função `paste(tipo, nome)`.
 
-Usaremos a função _mutate_ para operar transformações nas variáveis existentes e criar variáveis novas. Há inúmeras transformações possíveis e elas lembram bastante as funções de outros softwares, como MS Excel. Vamos ver algumas das mais importantes.
+# Filtrando linhas com `filter()`
 
-No nosso caso, o formato dos valores de latitude e longitude estão em formato diferente do convenional. Latitudes são representadas por números entre -90 e 90, com 8 casas decimais, e Longitudes por números entre -180 e 180, também com 8 casas decimais. Em nosso par de variáveis, latitude está sem separador de decimal está omitido. Faremos a correção divindo latitude e lonmgitude por 1 milhão.
+Às vezes, queremos trabalhar somente com parte das observações. Por exemplo, podemos selecionar as Escolas Municipais de Educação Infantil (EMEI):
 
-```{r}
-escolas <- escolas %>% 
-  mutate(lat = lat / 1000000, 
-         lon = lon / 1000000) 
-```
-
-Como utilizamos os nomes das próprias variáveis à esquerda da operação de transformação, produziremos uma substituição e não haverá novas colunas na base de dados.
-
-## Filtrando linhas
-
-Por vezes, queremos trabalhar apenas com um conjunto de linhas do nosso banco de dados. Por exemplo, se quisermos selecionar apenas escolas municipais de educação infantil, utilizamos o verbo 'filter' com a condição desejada. Note que estamos criando um novo data frame (ou seja, um novo objeto) que contém a seleção de linhas produzida:
-
-```{r}
-emeis <- escolas %>% 
+```{r filtrar-emeis}
+emeis <- escolas %>%
   filter(tipo == "EMEI")
+
+nrow(emeis)
+head(emeis)
 ```
 
-Além da igualdade, poderíamos usar outros símbolos: maior (>). maior ou igual (>=), menor (<), menor ou igual (<=) e diferente (!=) para selecionar casos. Para casos de _NA_, podemos usar a função is.na(), pois a igualdade '== NA' é inválida em R.
+`filter()` seleciona **linhas** que satisfazem uma condição. O símbolo `==` significa igualdade; `!=` significa diferença; `>`, `<`, `>=` e `<=` permitem outras comparações. Para verificar valores ausentes (`NA`), usamos `is.na()`, não `== NA`.
 
-Vamos supor agora que todos centros de educação infantil (creche) da rede direta, indireta e conveniada. Como combinar condições?
+## Combinando condições: OU e E
 
-```{r}
-creches <- escolas %>% 
-  filter(tipo == "CEI DIRET" | tipo == "CEI INDIR" | tipo == "CR.P.CONV")
+Vamos selecionar três tipos de centro de educação infantil:
+
+```{r filtrar-creches}
+creches <- escolas %>%
+  filter(tipo == "CEI DIRET" |
+         tipo == "CEI INDIR" |
+         tipo == "CR.P.CONV")
+
+nrow(creches)
 ```
 
-Note que, para dizer que para combinarmos as condições de seleção de linha, utilizamos uma barra vertical. A barra é o símbolo "ou", e indica que todas as observações que atenderem a uma ou outra condição serão incluídas.
+A barra vertical `|` significa **OU**: basta que uma das condições seja verdadeira.
 
-Vamos supor que queremos estabelecer agora condições para a seleção de linhas a partir de duas variáveis. Por exemplo, queremos incluir as mesmas escolas já escolhidas e que também sejam da Diretoria Regional do Ipiranga. O símbolo da conjunção "e" é "&". Veja como utilizá-lo:
+Agora, queremos essas mesmas categorias, mas **somente na Diretoria Regional de Educação do Ipiranga**. Precisamos utilizar **E**, representado por `&`:
 
-```{r}
-creches <- escolas %>% 
-  filter(tipo == "CEI DIRET" | 
-            tipo == "CEI INDIR" | 
-            tipo == "CR.P.CONV" &
-            dre == "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA")
+```{r filtrar-creches-ipiranga}
+creches_ipiranga <- escolas %>%
+  filter(
+    (tipo == "CEI DIRET" |
+     tipo == "CEI INDIR" |
+     tipo == "CR.P.CONV") &
+    str_detect(dre, "IPIRANGA")
+  )
 
-
+nrow(creches_ipiranga)
 ```
 
-Ao usar duas variáveis diferentes para filter e a conjunção "e", podemos escrever o comando separando as condições por vírgula e dispensar o operador "&":
+**Preste atenção aos parênteses.** Sem eles, a condição sobre a Diretoria Regional poderia ser aplicada apenas à última alternativa, e não às três categorias de escolas. A função `str_detect()`, do *stringr*, identifica os registros cujo nome da Diretoria contém o texto `IPIRANGA`.
 
-```{r}
-creches_ipiranga <- escolas %>% 
-  filter((tipo == "CEI DIRET" | 
-            tipo == "CEI INDIR" | 
-            tipo == "CR.P.CONV"),
-           dre == "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA")
+Podemos escrever a mesma seleção utilizando uma vírgula entre as condições do `filter()`. Dentro de `filter()`, a vírgula funciona como **E**:
+
+```{r filtrar-com-virgula}
+creches_ipiranga <- escolas %>%
+  filter(
+    tipo == "CEI DIRET" |
+      tipo == "CEI INDIR" |
+      tipo == "CR.P.CONV",
+    str_detect(dre, "IPIRANGA")
+  )
 ```
 
-Você pode combinar quantas condições precisar. Se houver ambiguidade quanto à ordem das condições, use parênteses, como fizemos acima.
+As duas versões devem selecionar as mesmas escolas:
 
-Vamos uma aplicação interessante dos dados com os quais trabalhamos.
+```{r conferir-filtro}
+nrow(creches_ipiranga)
+head(creches_ipiranga)
+```
 
+# Contando e extraindo informações
+
+Além de selecionar e modificar dados, podemos responder rapidamente a algumas perguntas sobre a tabela.
+
+## Quantas escolas existem de cada tipo?
+
+O verbo `count()` conta as observações de cada categoria:
+
+```{r contar-tipos}
+escolas %>%
+  count(tipo, sort = TRUE)
+```
+
+`sort = TRUE` apresenta os tipos mais frequentes primeiro. É uma forma rápida de conhecer a distribuição de uma variável categórica.
+
+## E se quisermos apenas os nomes das escolas?
+
+Nos primeiros tutoriais de raspagem precisaremos transformar colunas de *data frames* em vetores. A função `pull()`, do *dplyr*, faz exatamente isso:
+
+```{r extrair-vetor}
+nomes_escolas <- escolas %>%
+  pull(nome)
+
+class(nomes_escolas)
+head(nomes_escolas)
+```
+
+O resultado já não é um *data frame*, mas um vetor de textos. No Tutorial 3 faremos uma operação semelhante para reunir endereços de páginas da Wikipedia.
+
+# Para praticar
+
+**Primeiro exercício:** crie um objeto com apenas as escolas do tipo `EMEI` e apresente suas colunas `nome` e `dre`.
+
+**Segundo exercício:** utilize `count()` para descobrir quantas escolas há em cada Diretoria Regional de Educação do cadastro.
+
+**Terceiro exercício:** crie uma coluna chamada `nome_curto` contendo exatamente o mesmo texto da coluna `nome`. Qual é a diferença entre criar essa coluna com `mutate()` e renomear `nome` com `rename()`?
+
+**Quarto exercício:** refaça o filtro de creches do Ipiranga e retire os parênteses do primeiro exemplo. Compare as quantidades encontradas e explique o que mudou. Essa comparação é apenas um exercício: **a versão correta é aquela em que as três categorias são combinadas antes da condição sobre a DRE**.
+
+## Retomando a origem dos dados
+
+Todo o exercício foi realizado com o cadastro real obtido diretamente da Prefeitura de São Paulo. Volte ao [portal de origem](https://dados.prefeitura.sp.gov.br/dataset/cadastro-de-escolas-municipais-conveniadas-e-privadas) e examine o dicionário de dados. Quais variáveis adicionais poderiam ser úteis para uma pesquisa sobre educação municipal?
+
+Nos próximos tutoriais, aprenderemos a buscar informações em páginas HTML, extrair endereços de links, repetir coletas e consultar APIs. As operações que praticamos com *dplyr* continuarão aparecendo durante todo o curso.
