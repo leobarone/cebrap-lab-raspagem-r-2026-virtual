@@ -2,8 +2,6 @@
 library(tidyverse)
 library(rvest)
 
-install.packages('rvest')
-
 # URL da pagina com a lista de parques nacionais
 url_lista_parques <- 'https://pt.wikipedia.org/wiki/Lista_de_parques_nacionais_do_Brasil'
 
@@ -11,9 +9,6 @@ url_lista_parques <- 'https://pt.wikipedia.org/wiki/Lista_de_parques_nacionais_d
 pagina_lista_parques <- read_html(url_lista_parques)
 
 # Extraindo todas as tabelas da pagina
-tabelas_pagina <- pagina_lista_parques %>% 
-  html_table()
-
 tabelas_pagina <- html_table(pagina_lista_parques) 
   
 # Selecionando a primeira tabela da lista
@@ -21,7 +16,7 @@ tabela_parques <- tabelas_pagina[[1]]
 
 # Extraindo os links presentes nos cabeçalhos das tabelas
 url_parques <- pagina_lista_parques %>% 
-  html_nodes(xpath = '//table//tr/th//a') %>% 
+  html_elements(xpath = '//table//tr/th//a') %>% 
   html_attr('href')
 
 # Mantendo apenas os links completos da Wikipedia

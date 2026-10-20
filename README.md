@@ -43,7 +43,7 @@ Os materiais estão na pasta **[`tutoriais/`](tutoriais/)**. São **sete tutoria
 
 ### 00 · Preparação: primeiros passos no R e no dplyr
 
-**[Tutorial 0 — Manipulando dados com dplyr](tutoriais/00_tutorial_inicial_r.Rmd)**
+**[Tutorial 0 — Manipulando dados com dplyr](tutoriais/00_tutorial_inicial_.Rmd)**
 
 Antes de começar a coleta de informações pela internet, retomaremos os comandos básicos que serão utilizados em todo o curso. O exemplo utiliza o **Cadastro de escolas municipais, conveniadas e privadas da Prefeitura de São Paulo**, consultado diretamente por sua URL oficial, para praticar a manipulação de dados públicos reais.
 
@@ -53,7 +53,7 @@ Antes de começar a coleta de informações pela internet, retomaremos os comand
 
 ### 01 · Nossa primeira raspagem: a tabela de parques nacionais
 
-**[Tutorial 1 — Capturando uma tabela na Wikipedia](tutoriais/01_capturando_tabela_parques.Rmd)**
+**[Tutorial 1 — Capturando uma tabela na Wikipedia](tutoriais/01_capturando_tabela_parques.md)**
 
 Começaremos pela [lista de parques nacionais do Brasil na Wikipedia](https://pt.wikipedia.org/wiki/Lista_de_parques_nacionais_do_Brasil). Vamos acessar a página e transformar uma tabela HTML em um *data frame*, sem copiar e colar as informações manualmente.
 
@@ -61,7 +61,7 @@ Começaremos pela [lista de parques nacionais do Brasil na Wikipedia](https://pt
 
 ### 02 · Entendendo HTML, XML e os caminhos para encontrar informações
 
-**[Tutorial 2 — HTML, XML, XPath e seletores CSS](tutoriais/02_html_xml_xpath_css.Rmd)**
+**[Tutorial 2 — HTML, XML, XPath e seletores CSS](tutoriais/02_html_xml_xpath_css.md)**
 
 Antes de avançar na raspagem, vamos compreender como um documento organiza suas informações. Aprenderemos a reconhecer elementos e hierarquias; depois criaremos uma pequena página HTML para praticar, utilizando exemplos de parques nacionais, estados e trilhas.
 
@@ -69,7 +69,7 @@ Antes de avançar na raspagem, vamos compreender como um documento organiza suas
 
 ### 03 · Dos links aos textos: automatizando a coleta
 
-**[Tutorial 3 — Raspagem de páginas com `for loops`](tutoriais/03_links_textos_for_loops.Rmd)**
+**[Tutorial 3 — Raspagem de páginas com `for loops`](tutoriais/03_links_textos_for_loops.md)**
 
 Voltaremos à Wikipedia para extrair os endereços das páginas dos parques. Primeiro capturaremos os parágrafos de uma única página. Depois aprenderemos a repetir o procedimento e guardar os textos coletados em uma tabela.
 
@@ -77,7 +77,7 @@ Voltaremos à Wikipedia para extrair os endereços das páginas dos parques. Pri
 
 ### 04 · Do HTML ao JSON: nossa primeira consulta a uma API
 
-**[Tutorial 4 — JSON e API da Câmara dos Deputados](tutoriais/04_json_primeira_api_camara.Rmd)**
+**[Tutorial 4 — JSON e API da Câmara dos Deputados](tutoriais/04_json_primeira_api_camara.md)**
 
 Nem todos os dados precisam ser obtidos por raspagem de páginas HTML. Neste tutorial vamos compreender o formato JSON e, em seguida, consultar informações de Projetos de Lei (PLs) de 2025 na API de Dados Abertos da Câmara dos Deputados.
 
@@ -87,7 +87,7 @@ Retomaremos essas consultas no Tutorial 6, quando utilizaremos os endereços dos
 
 ### 05 · Formulários na web: buscando teses e dissertações na BDTD
 
-**[Tutorial 5 — Formulários na BDTD: resumos e metadados](tutoriais/05_formularios_bdtd_resumos_metadados.Rmd)**
+**[Tutorial 5 — Formulários na BDTD: resumos e metadados](tutoriais/05_formularios_bdtd_resumos_metadados.md)**
 
 Até aqui capturamos páginas e consultamos uma API. Agora vamos aprender a **preencher e enviar um formulário de busca**. Utilizaremos a [Biblioteca Digital Brasileira de Teses e Dissertações (BDTD)](https://bdtd.ibict.br/vufind/) para pesquisar teses e dissertações sobre um tema.
 
@@ -99,7 +99,7 @@ Nesta atividade, nosso interesse está nos registros bibliográficos e nos resum
 
 ### 06 · Da API aos PDFs: construindo um corpus de proposições legislativas
 
-**[Tutorial 6 — Da API da Câmara ao corpus de PDFs](tutoriais/06_api_camara_corpus_pdfs.Rmd)**
+**[Tutorial 6 — Da API da Câmara ao corpus de PDFs](tutoriais/06_api_camara_corpus_pdfs.md)**
 
 Na última atividade, retomaremos os Projetos de Lei de 2025 consultados no Tutorial 4. Vamos recuperar os detalhes de um pequeno conjunto de proposições, baixar os documentos de inteiro teor disponíveis em PDF e transformar seus conteúdos em uma tabela de textos para pesquisa. Partiremos de **uma proposição e um documento** antes de repetir a operação para vários casos.
 
