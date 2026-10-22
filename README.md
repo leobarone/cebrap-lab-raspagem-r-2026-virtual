@@ -43,7 +43,7 @@ Os materiais estão na pasta **[`tutoriais/`](tutoriais/)**. São **sete tutoria
 
 ### 00 · Preparação: primeiros passos no R e no dplyr
 
-**[Tutorial 0 — Manipulando dados com dplyr](tutoriais/00_tutorial_inicial_.Rmd)**
+**[Tutorial 0 — Manipulando dados com dplyr](tutoriais/00_tutorial_inicial_r.md)**
 
 Antes de começar a coleta de informações pela internet, retomaremos os comandos básicos que serão utilizados em todo o curso. O exemplo utiliza o **Cadastro de escolas municipais, conveniadas e privadas da Prefeitura de São Paulo**, consultado diretamente por sua URL oficial, para praticar a manipulação de dados públicos reais.
 
@@ -87,7 +87,7 @@ Retomaremos essas consultas no Tutorial 6, quando utilizaremos os endereços dos
 
 ### 05 · Formulários na web: buscando teses e dissertações na BDTD
 
-**[Tutorial 5 — Formulários na BDTD: resumos e metadados](tutoriais/05_formularios_bdtd_resumos_metadados.md)**
+**[Tutorial 5 — Formulários na BDTD: resumos e metadados](tutoriais/05_formularios_bdtd_resumos.md)**
 
 Até aqui capturamos páginas e consultamos uma API. Agora vamos aprender a **preencher e enviar um formulário de busca**. Utilizaremos a [Biblioteca Digital Brasileira de Teses e Dissertações (BDTD)](https://bdtd.ibict.br/vufind/) para pesquisar teses e dissertações sobre um tema.
 

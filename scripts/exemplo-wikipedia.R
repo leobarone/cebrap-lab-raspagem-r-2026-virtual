@@ -40,14 +40,14 @@ tabela_textos <- NULL
 for (url_p in url_parques) {
   
   # Mostrando o link que esta sendo capturado
-  print(url_p)
+  Sys.sleep(1)
   
   # Capturando o HTML da pagina do parque
   pagina_parque <- read_html(url_p)
   
   # Extraindo os textos dos parágrafos da página
   texto <- pagina_parque %>% 
-    html_nodes(xpath = '//p') %>% 
+    html_elements(xpath = '//p') %>% 
     html_text()
   
   # Reunindo os parágrafos em um unico texto
@@ -61,7 +61,7 @@ for (url_p in url_parques) {
         texto_parque = texto
       )
     )
-  
+  print(tabela_textos)
 }
 
 df <- bind_cols(tibble(id=1:76), tabela_parques, tabela_textos) %>% janitor::clean_names() 
